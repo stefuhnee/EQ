@@ -13,6 +13,8 @@ const stateKey = 'spotify_auth_state';
 
 const generateRandomString = require('../lib/generate-random-string');
 
+const User = require('../model/user');
+
 router.use(express.static(__dirname + '/../public'))
    .use(cookieParser());
 
@@ -33,7 +35,7 @@ router.get('/login', (req, res) => {
     }));
 });
 
-router.get('/callback', function(req, res) {
+router.get('/callback', function(req, res, next) {
 
   // your application requests refresh and access tokens
   // after checking the state parameter
@@ -77,6 +79,15 @@ router.get('/callback', function(req, res) {
         // use the access token to access the Spotify Web API
         request.get(options, function(error, response, body) {
           console.log(body);
+          let newUser = new User({user_id: body.id});
+
+          User.findOne({user_id: body.id}, (err, user) => {
+            if (err || user) return;
+            newUser.save((err, user) => {
+              if (err) return;
+              console.log('user created');
+            });
+          });
         });
 
         // we can also pass the token to the browser to make requests from there
@@ -117,6 +128,10 @@ router.get('/refresh_token', function(req, res) {
       });
     }
   });
+});
+
+router.use((err, req, res, next) => {
+  res.send('Error: ', err.message);
 });
 
 module.exports = router;
