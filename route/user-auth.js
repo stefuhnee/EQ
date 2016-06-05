@@ -35,7 +35,7 @@ router.get('/login', (req, res) => {
     }));
 });
 
-router.get('/callback', function(req, res, next) {
+router.get('/callback', function(req, res) {
 
   // your application requests refresh and access tokens
   // after checking the state parameter
@@ -128,10 +128,6 @@ router.get('/refresh_token', function(req, res) {
       });
     }
   });
-});
-
-router.use((err, req, res, next) => {
-  res.send('Error: ', err.message);
 });
 
 module.exports = router;
