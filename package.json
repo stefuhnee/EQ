@@ -19,8 +19,11 @@
     "playlist",
     "music"
   ],
-  "author": "Stefanie Hansen <stefuhnee@gmail.com>",
   "contributors": [
+    {
+      "name": "Stefanie Hansen",
+      "email": "stefuhnee@gmail.com"
+    },
     {
       "name": "Drew Ferris",
       "email": "blah"
@@ -48,13 +51,19 @@
     "mocha": "^2.5.3"
   },
   "dependencies": {
-    "bcrypt": "^0.8.6",
+    "body-parser": "^1.15.1",
+    "consolidate": "^0.14.1",
     "cookie-parser": "^1.4.3",
     "express": "^4.13.4",
+    "express-session": "^1.13.0",
     "jsonwebtoken": "^7.0.0",
+    "method-override": "^2.3.6",
     "mongoose": "^4.4.19",
     "morgan": "^1.7.0",
+    "passport": "^0.3.2",
+    "passport-spotify": "^0.3.0",
     "querystring": "^0.2.0",
-    "request": "^2.72.0"
+    "request": "^2.72.0",
+    "swig": "^1.4.2"
   }
 }
