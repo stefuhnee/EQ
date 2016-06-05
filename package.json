@@ -20,18 +20,20 @@
     "music"
   ],
   "author": "Stefanie Hansen <stefuhnee@gmail.com>",
-  "contributors": [{
-    "name": "Drew Ferris",
-    "email": "blah"
+  "contributors": [
+    {
+      "name": "Drew Ferris",
+      "email": "blah"
     },
-  {
-    "name": "Madeline Mow",
-    "email": "blah"
+    {
+      "name": "Madeline Mow",
+      "email": "blah"
     },
-  {
-    "name": "Kevin Chuang",
-    "email": "blah"
-    }],
+    {
+      "name": "Kevin Chuang",
+      "email": "blah"
+    }
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/stefuhnee/EQ/issues"
@@ -47,9 +49,12 @@
   },
   "dependencies": {
     "bcrypt": "^0.8.6",
+    "cookie-parser": "^1.4.3",
     "express": "^4.13.4",
     "jsonwebtoken": "^7.0.0",
     "mongoose": "^4.4.19",
-    "morgan": "^1.7.0"
+    "morgan": "^1.7.0",
+    "querystring": "^0.2.0",
+    "request": "^2.72.0"
   }
 }
