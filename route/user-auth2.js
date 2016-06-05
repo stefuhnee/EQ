@@ -43,10 +43,6 @@ passport.use(new SpotifyStrategy({
 ));
 
 router.get('/', function(req, res){
-  res.render('index.html', { user: req.user });
-});
-
-router.get('/login', function(req, res){
   res.render('login.html', { user: req.user });
 });
 
@@ -55,15 +51,11 @@ router.get('/auth/spotify', passport.authenticate('spotify', {scope: ['user-read
 });
 
 router.get('/callback',
-  passport.authenticate('spotify', { failureRedirect: '/login' }),
+  passport.authenticate('spotify', { failureRedirect: '/' }),
   function(req, res) {
     res.redirect('/');
   });
 
-router.get('/logout', function(req, res){
-  req.logout();
-  res.redirect('/');
-});
 
 // function ensureAuthenticated(req, res, next) {
 //   if (req.isAuthenticated()) { return next(); }

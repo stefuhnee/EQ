@@ -52,7 +52,6 @@
   },
   "dependencies": {
     "body-parser": "^1.15.1",
-    "consolidate": "^0.14.1",
     "cookie-parser": "^1.4.3",
     "express": "^4.13.4",
     "express-session": "^1.13.0",
@@ -64,6 +63,5 @@
     "passport-spotify": "^0.3.0",
     "querystring": "^0.2.0",
     "request": "^2.72.0",
-    "swig": "^1.4.2"
   }
 }
