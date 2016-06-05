@@ -10,9 +10,6 @@ const createRouter = require('./route/create-playlist');
 const dbPort = process.env.MONGOLAB_URI || 'mongodb://localhost/dev_db';
 mongoose.connect(dbPort);
 
-app.set('views', __dirname + '/public');
-app.set('view engine', 'html');
-
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.static(__dirname + '/public'));
