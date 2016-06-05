@@ -19,12 +19,13 @@ router.post('/create/:id', (req, res) => {
       name: playlistName,
       public: false
     }
-  }, (err) => {
-    if (!err && res.statusCode === 200) {
-      return res.send('playlist created!');
+  }, (err, response, body) => {
+    console.log(body);
+    if (!body.error && res.statusCode === 200) {
+      return res.json({Message: 'Playlist Created!'});
     }
     else {
-      res.send('error', err);
+      res.json('error', body.error);
     }
   });
 });
