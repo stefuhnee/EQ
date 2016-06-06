@@ -2,13 +2,15 @@
 const chai = require('chai');
 const chaiHTTP = require('chai-http');
 chai.use(chaiHTTP);
+const passport = require('passport');
+const SpotifyStrategy = require('passport-spotify').Strategy;
 
-//const client_id = process.env.CLIENT_ID;
-//const client_secret = process.env.CLIENT_SECRET;
+
+ let client_id = process.env.CLIENT_ID;
+ let client_secret = process.env.CLIENT_SECRET;
 //const redirect_uri = 'http://localhost:8888/callback'
 const createPL = require('../route/manage-playlist.js');
-const auth = require('../route/user-auth.js');
-//const userAuth = require('../route/user-auth.js');
+const userAuth = require('../route/user-auth.js');
 //const httpRequest = require('request');
 
 // const mongoose = require('mongoose');
@@ -21,15 +23,29 @@ require('../server.js');
 
 describe('playlist routes', () => {
   let user_id = 'makeitso22169';
-  let token = 'BQCJC9TBNMvYLCFYddw1JQ5YnM2Gk_OdZWb5IOB-NIJy9lZiqmkpu0CO8JeYhEfmn5r3OqSXgzcVfT9RqVi3BNPu-3uGqcphXV6ztH57E_YNHK4YSOQApVXpNBqGaVn9lCEn1BB3a05JBpGZ_31gnfLNxJUUna_MIB3HLzNeYiCBdP4YjRSGSSVO3oNAUOs-fFhAmnbFOi5bDoKOuwQ';
-  let playlist_id= '4KJ4SgELsFJRbUio4RHkRV'
+  let token = 'BQByYST-z-G-VmO3uJ8mX_6_BHlSgSw6fuG4tOAcaUU6wsulHA87ONzMOxE92EmdgiHAxZu0EuBQw0V1ca2Df62G4Ggedo0twG-R_Ls-TnfKtoHg7Bm94OwNUaos1Zs85UH_PR_li_crkgoddveL7U-s4w-3Z_KJFRzfsCuBJLhVLIWYuAdPM0u7hngMKDlXMfNdDG2PmVcz5tIMv7M';
+  let playlist_id= '4KJ4SgELsFJRbUio4RHkRV';
+  // before((done) => {
+  //   passport.use(new SpotifyStrategy({
+  //     clientID: client_id,
+  //     clientSecret: client_secret,
+  //     callbackURL: 'http://localhost:8888/callback'
+  //   },
+  //     (accessToken, refreshToken, profile, done) => {
+  //       token = accessToken;
+  //       console.log('token test', token);
+  //       done();
+  //     }
+  //   ));
+  //   done();
+  // });
+
   it('should create a playlist', (done) => {
     request('localhost:8888')
     .post('/create/' + user_id)
     .set('name', 'testingtesting123')
     .set('token', token)
     .end((err,res) => {
-
       expect(err).to.eql(null);
       expect(res.body.Message).to.eql('Playlist Created!');
       done();
@@ -40,17 +56,18 @@ describe('playlist routes', () => {
     .get('/playlist')
     .set('token', token)
     .end((err,res) => {
-    //expect goes here....
+      expect(err).to.eql(null);
+      expect(res.body.message).to.eql('Here is a playlist');
       done();
     });
   });
   it('should add a track', (done) => {
     request('localhost:8888')
-    .post('/add/33vzOPcd9FRirYGlCu32x4')
+    .post('/add/spotify:track:33vzOPcd9FRirYGlCu32x4')
     .set('authorization', 'Bearer ' + token)
     .end((err,res) => {
       expect(err).to.eql(null);
-      expect(res.body.message).to.eql('Track Added');
+      expect(res.body.Message).to.eql('Track added!');
       done();
     });
   });

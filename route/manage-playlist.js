@@ -20,7 +20,7 @@ router.get('/playlist', (req, res) => {
       console.log(error);
     } else {
       console.log(response.statusCode, body);
-      res.send(body);
+      res.json({message: 'Here is a playlist', data:body});
     }
   });
 });
