@@ -23,8 +23,8 @@ const request = chai.request;
 require('../server.js');
 
 describe('playlist routes', () => {
-  let user_id = 'makeitso22169';
-  let playlist_id= '4KJ4SgELsFJRbUio4RHkRV';
+  let user_id = 'drew22222222';
+  let playlist_id= '6bnVapwZKjE3DC7j39UCSE';
   // before((done) => {
   //   passport.use(new SpotifyStrategy({
   //     clientID: client_id,
@@ -68,6 +68,17 @@ describe('playlist routes', () => {
     .end((err,res) => {
       expect(err).to.eql(null);
       expect(res.body.Message).to.eql('Track added!');
+      done();
+    });
+  });
+  it('should delete a track', (done) => {
+    request('localhost:8888')
+    .delete('/delete/spotify:track:33vzOPcd9FRirYGlCu32x4')
+    .set('authorization', 'Bearer ' + access_token)
+    .end((err,res) => {
+      console.log(err);
+      expect(err).to.eql(null);
+      expect(res.body.Message).to.eql('Track deleted!');
       done();
     });
   });
