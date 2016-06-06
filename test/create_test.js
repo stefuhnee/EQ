@@ -8,6 +8,7 @@ const SpotifyStrategy = require('passport-spotify').Strategy;
 
  let client_id = process.env.CLIENT_ID;
  let client_secret = process.env.CLIENT_SECRET;
+ let access_token = process.env.TOKEN;
 //const redirect_uri = 'http://localhost:8888/callback'
 const createPL = require('../route/manage-playlist.js');
 const userAuth = require('../route/user-auth.js');
@@ -23,7 +24,6 @@ require('../server.js');
 
 describe('playlist routes', () => {
   let user_id = 'makeitso22169';
-  let token = 'BQByYST-z-G-VmO3uJ8mX_6_BHlSgSw6fuG4tOAcaUU6wsulHA87ONzMOxE92EmdgiHAxZu0EuBQw0V1ca2Df62G4Ggedo0twG-R_Ls-TnfKtoHg7Bm94OwNUaos1Zs85UH_PR_li_crkgoddveL7U-s4w-3Z_KJFRzfsCuBJLhVLIWYuAdPM0u7hngMKDlXMfNdDG2PmVcz5tIMv7M';
   let playlist_id= '4KJ4SgELsFJRbUio4RHkRV';
   // before((done) => {
   //   passport.use(new SpotifyStrategy({
@@ -44,7 +44,7 @@ describe('playlist routes', () => {
     request('localhost:8888')
     .post('/create/' + user_id)
     .set('name', 'testingtesting123')
-    .set('token', token)
+    .set('token', access_token)
     .end((err,res) => {
       expect(err).to.eql(null);
       expect(res.body.Message).to.eql('Playlist Created!');
@@ -54,7 +54,7 @@ describe('playlist routes', () => {
   it('should get playlist', (done) => {
     request('localhost:8888')
     .get('/playlist')
-    .set('token', token)
+    .set('token', access_token)
     .end((err,res) => {
       expect(err).to.eql(null);
       expect(res.body.message).to.eql('Here is a playlist');
@@ -64,7 +64,7 @@ describe('playlist routes', () => {
   it('should add a track', (done) => {
     request('localhost:8888')
     .post('/add/spotify:track:33vzOPcd9FRirYGlCu32x4')
-    .set('authorization', 'Bearer ' + token)
+    .set('authorization', 'Bearer ' + access_token)
     .end((err,res) => {
       expect(err).to.eql(null);
       expect(res.body.Message).to.eql('Track added!');
