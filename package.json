@@ -1,67 +1,67 @@
 {
-  "name": "eq",
-  "version": "0.0.1",
-  "description": "TBD",
-  "main": "index.js",
-  "directories": {
-    "test": "test"
-  },
-  "scripts": {
-    "test": "./node_modules/mocha/bin/mocha",
-    "start": "node index.js",
-    "lint": "./node_modules/eslint/bin/eslint.js *"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/stefuhnee/EQ.git"
-  },
-  "keywords": [
-    "playlist",
-    "music"
-  ],
-  "contributors": [
-    {
-      "name": "Stefanie Hansen",
-      "email": "stefuhnee@gmail.com"
-    },
-    {
-      "name": "Drew Ferris",
-      "email": "blah"
-    },
-    {
-      "name": "Madeline Mow",
-      "email": "blah"
-    },
-    {
-      "name": "Kevin Chuang",
-      "email": "blah"
-    }
-  ],
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/stefuhnee/EQ/issues"
-  },
-  "homepage": "https://github.com/stefuhnee/EQ#readme",
-  "devDependencies": {
-    "chai": "^3.5.0",
-    "chai-http": "^2.0.1",
-    "gulp": "^3.9.1",
-    "gulp-eslint": "^2.0.0",
-    "gulp-mocha": "^2.2.0",
-    "mocha": "^2.5.3"
-  },
-  "dependencies": {
-    "body-parser": "^1.15.1",
-    "cookie-parser": "^1.4.3",
-    "express": "^4.13.4",
-    "express-session": "^1.13.0",
-    "jsonwebtoken": "^7.0.0",
-    "method-override": "^2.3.6",
-    "mongoose": "^4.4.19",
-    "morgan": "^1.7.0",
-    "passport": "^0.3.2",
-    "passport-spotify": "^0.3.0",
-    "querystring": "^0.2.0",
-    "request": "^2.72.0",
-  }
+ "name": "eq",
+ "version": "0.0.1",
+ "description": "TBD",
+ "main": "index.js",
+ "directories": {
+   "test": "test"
+ },
+ "scripts": {
+   "test": "./node_modules/mocha/bin/mocha",
+   "start": "node index.js",
+   "lint": "./node_modules/eslint/bin/eslint.js *"
+ },
+ "repository": {
+   "type": "git",
+   "url": "git+https://github.com/stefuhnee/EQ.git"
+ },
+ "keywords": [
+   "playlist",
+   "music"
+ ],
+ "contributors": [
+   {
+     "name": "Stefanie Hansen",
+     "email": "stefuhnee@gmail.com"
+   },
+   {
+     "name": "Drew Ferris",
+     "email": "blah"
+   },
+   {
+     "name": "Madeline Mow",
+     "email": "blah"
+   },
+   {
+     "name": "Kevin Chuang",
+     "email": "blah"
+   }
+ ],
+ "license": "MIT",
+ "bugs": {
+   "url": "https://github.com/stefuhnee/EQ/issues"
+ },
+ "homepage": "https://github.com/stefuhnee/EQ#readme",
+ "devDependencies": {
+   "chai": "^3.5.0",
+   "chai-http": "^2.0.1",
+   "gulp": "^3.9.1",
+   "gulp-eslint": "^2.0.0",
+   "gulp-mocha": "^2.2.0",
+   "mocha": "^2.5.3"
+ },
+ "dependencies": {
+   "body-parser": "^1.15.1",
+   "cookie-parser": "^1.4.3",
+   "express": "^4.13.4",
+   "express-session": "^1.13.0",
+   "jsonwebtoken": "^7.0.0",
+   "method-override": "^2.3.6",
+   "mongoose": "^4.4.19",
+   "morgan": "^1.7.0",
+   "passport": "^0.3.2",
+   "passport-spotify": "^0.3.0",
+   "querystring": "^0.2.0",
+   "request": "^2.72.0"
+ }
 }

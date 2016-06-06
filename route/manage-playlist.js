@@ -78,4 +78,28 @@ router.post('/add/:track', (req, res) => {
   });
 });
 
+router.delete('/delete/:track', (req, res) => {
+  let track = req.params.track;
+
+  request({
+    url: `https://api.spotify.com/v1/users/${user_id}/playlists/${playlist_id}/tracks`,
+    method: 'DELETE',
+    headers: {
+      'Authorization': 'Bearer ' + access_token,
+      'Content-Type': 'application/json'
+    },
+    json: {
+      uris: [`${track}`]
+    }
+  }, (err, response, body) => {
+    console.log(body);
+    if (!body.error && res.statusCode === 200) {
+      return res.json({Message: 'Track deleted!'});
+    }
+    else {
+      res.json('error', body.error);
+    }
+  });
+});
+
 module.exports = router;
