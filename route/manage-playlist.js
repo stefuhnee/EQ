@@ -57,6 +57,7 @@ router.post('/add/:track', (req, res) => {
 
   let track = req.params.track;
 
+
   request({
     url: `https://api.spotify.com/v1/users/${user_id}/playlists/${playlist_id}/tracks`,
     method: 'POST',
@@ -80,7 +81,7 @@ router.post('/add/:track', (req, res) => {
 
 router.delete('/delete/:track', (req, res) => {
   let track = req.params.track;
-
+  console.log(track);
   request({
     url: `https://api.spotify.com/v1/users/${user_id}/playlists/${playlist_id}/tracks`,
     method: 'DELETE',
