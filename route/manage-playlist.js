@@ -13,41 +13,58 @@ let access_token;
 function checkToken(req, res, next) {
   let time = Date.now();
 
-  User.find({user_id}, (err, user) => {
+  User.findOne({user_id}, (err, user) => {
     console.log('user', user);
-    let newToken;
-    let newRefresh;
-    if (user.tokenExpires > time) {
+    if (user) {
+      console.log('WE HAVE A USER')
+      let newToken;
+      let newRefresh;
+      console.log('user.tokenExpires', user.tokenExpires);
+      console.log('is our conditional true?', user.tokenExpires < parseInt(time));
+      if (user.tokenExpires > time) {
+        console.log ('token is supposedly expired')
+        let refresh_token = user.refreshToken;
+        let authOptions = {
+          url: 'https://accounts.spotify.com/api/token',
+          headers: { 'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64')) },
+          form: {
+            grant_type: 'refresh_token',
+            refresh_token: refresh_token
+          },
+          json: true
+        };
 
-      let refresh_token = user.refreshToken;
-      let authOptions = {
-        url: 'https://accounts.spotify.com/api/token',
-        headers: { 'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64')) },
-        form: {
-          grant_type: 'refresh_token',
-          refresh_token: refresh_token
-        },
-        json: true
-      };
-
-      request.post(authOptions, function(error, response, body) {
-        if (!error && response.statusCode === 200) {
-          newToken = body.access_token;
-          if (body.refresh_token) {
-            newRefresh = body.refresh_token;
-            User.findOneAndUpdate({user_id}, {refreshToken: newRefresh, accessToken: newToken});
-            return next();
+        request.post(authOptions, function(error, response, body) {
+          console.log('POSTING TO SPOTIFY');
+          if (!error && response.statusCode === 200) {
+            console.log('successfully requested a new token from spotify')
+            newToken = body.access_token;
+            if (body.refresh_token) {
+              console.log('we have a refresh token')
+              newRefresh = body.refresh_token;
+              User.findOneAndUpdate({user_id}, { $set: {accessToken: newToken, refreshToken: newRefresh}}, (err) => {
+                if (err) console.log(err);
+              });
+              return next();
+            }
+            else {
+              console.log('no refresh token given');
+              User.findOneAndUpdate({user_id}, { $set: {accessToken: newToken, refreshToken: null}}, (err) => {
+                if (err) console.log(err);
+              });
+              console.log('response from spotify', body)
+              return next();
+            }
+          } else {
+            console.log('error requesting token', error);
+            return res.send('error refreshing token');
           }
-          else {
-            User.findOneAndUpdate({user_id}, {refreshToken: null, accessToken: newToken});
-            return next();
-          }
-        }
-        else {
-          res.send('error refreshing token');
-        }
-      });
+        });
+      } else {
+        next();
+      }
     }
+    if (err) console.log(err);
   });
 }
 
