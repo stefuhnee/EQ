@@ -3,17 +3,19 @@
 const router = require('express').Router();
 const request = require('request');
 const User = require('../model/user');
-let user_id;
-let playlist_id;
+const findUser = require('../lib/find-user');
 let access_token;
+
+router.use('*', findUser);
 
 router.get('/playlist', (req, res) => {
   // ERROR HANDLING IF NO PLAYLIST
+  access_token = req.headers.token;
   request({
-    url: `https://api.spotify.com/v1/users/${user_id}/playlists/${playlist_id}`,
+    url: `https://api.spotify.com/v1/users/${res.user.user_id}/playlists/${res.user.playlist_id}`,
     method: 'GET',
     headers: {
-      Authorization: 'Bearer ' + access_token
+      Authorization: `Bearer ${access_token}`
     }
   }, (error, response, body) => {
     if (error) {
@@ -25,17 +27,19 @@ router.get('/playlist', (req, res) => {
   });
 });
 
-router.post('/create/:id', (req, res) => {
+router.post('/create/:name', (req, res) => {
 
-  let playlistName = req.headers.name;
+  console.log('user', res.user);
   access_token = req.headers.token;
-  user_id = req.params.id;
+  let user_id = res.user.user_id;
+  let playlistName = req.params.name;
+  access_token = req.headers.token;
 
   request({
     url: `https://api.spotify.com/v1/users/${user_id}/playlists`,
     method: 'POST',
     headers: {
-      'Authorization': 'Bearer ' + access_token,
+      'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'
     },
     json: {
@@ -43,8 +47,11 @@ router.post('/create/:id', (req, res) => {
       public: false
     }
   }, (err, response, body) => {
-    playlist_id = body.id;
+    let playlist_id = body.id;
     if (!body.error && res.statusCode === 200) {
+      User.findOneAndUpdate({user_id}, { $set: {playlist_id}}, (err) => {
+        if (err) console.log('error updating user with playlist');
+      });
       return res.json({Message: 'Playlist Created!'});
     }
     else {
@@ -55,13 +62,14 @@ router.post('/create/:id', (req, res) => {
 
 router.post('/add/:track', (req, res) => {
 
+  access_token = req.headers.token;
   let track = req.params.track;
 
   request({
-    url: `https://api.spotify.com/v1/users/${user_id}/playlists/${playlist_id}/tracks`,
+    url: `https://api.spotify.com/v1/users/${res.user.user_id}/playlists/${res.user.playlist_id}/tracks`,
     method: 'POST',
     headers: {
-      'Authorization': 'Bearer ' + access_token,
+      'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'
     },
     json: {
