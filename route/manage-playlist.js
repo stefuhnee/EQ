@@ -3,78 +3,21 @@
 const router = require('express').Router();
 const request = require('request');
 const User = require('../model/user');
-const client_id = process.env.CLIENT_ID; // Your client id
-const client_secret = process.env.CLIENT_SECRET;
-let user_id;
-let playlist_id;
+const findUser = require('../lib/find-user');
 let access_token;
+const checkToken = require('../lib/check-token');
 
+router.use('*', findUser);
+router.use('*', checkToken)
 
-function checkToken(req, res, next) {
-  let time = Date.now();
-
-  User.findOne({user_id}, (err, user) => {
-    console.log('user', user);
-    if (user) {
-      console.log('WE HAVE A USER')
-      let newToken;
-      let newRefresh;
-      console.log('user.tokenExpires', user.tokenExpires);
-      console.log('is our conditional true?', user.tokenExpires < parseInt(time));
-      if (user.tokenExpires > time) {
-        console.log ('token is supposedly expired')
-        let refresh_token = user.refreshToken;
-        let authOptions = {
-          url: 'https://accounts.spotify.com/api/token',
-          headers: { 'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64')) },
-          form: {
-            grant_type: 'refresh_token',
-            refresh_token: refresh_token
-          },
-          json: true
-        };
-
-        request.post(authOptions, function(error, response, body) {
-          console.log('POSTING TO SPOTIFY');
-          if (!error && response.statusCode === 200) {
-            console.log('successfully requested a new token from spotify')
-            newToken = body.access_token;
-            if (body.refresh_token) {
-              console.log('we have a refresh token')
-              newRefresh = body.refresh_token;
-              User.findOneAndUpdate({user_id}, { $set: {accessToken: newToken, refreshToken: newRefresh}}, (err) => {
-                if (err) console.log(err);
-              });
-              return next();
-            }
-            else {
-              console.log('no refresh token given');
-              User.findOneAndUpdate({user_id}, { $set: {accessToken: newToken, refreshToken: null}}, (err) => {
-                if (err) console.log(err);
-              });
-              console.log('response from spotify', body)
-              return next();
-            }
-          } else {
-            console.log('error requesting token', error);
-            return res.send('error refreshing token');
-          }
-        });
-      } else {
-        next();
-      }
-    }
-    if (err) console.log(err);
-  });
-}
-
-router.get('/playlist', checkToken, (req, res) => {
+router.get('/playlist', (req, res) => {
   // ERROR HANDLING IF NO PLAYLIST
+  access_token = req.headers.token;
   request({
     url: `https://api.spotify.com/v1/users/${user_id}/playlists/${playlist_id}`,
     method: 'GET',
     headers: {
-      Authorization: 'Bearer ' + access_token
+      Authorization: `Bearer ${access_token}`
     }
   }, (error, response, body) => {
     if (error) {
@@ -86,17 +29,17 @@ router.get('/playlist', checkToken, (req, res) => {
   });
 });
 
-router.post('/create/:id', (req, res) => {
+router.post('/create/:name', (req, res) => {
 
-  let playlistName = req.headers.name;
   access_token = req.headers.token;
-  user_id = req.params.id;
+  let user_id = res.user.user_id;
+  let playlistName = req.params.name;
 
   request({
     url: `https://api.spotify.com/v1/users/${user_id}/playlists`,
     method: 'POST',
     headers: {
-      'Authorization': 'Bearer ' + access_token,
+      'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'
     },
     json: {
@@ -104,8 +47,11 @@ router.post('/create/:id', (req, res) => {
       public: false
     }
   }, (err, response, body) => {
-    playlist_id = body.id;
+    let playlist_id = body.id;
     if (!body.error && res.statusCode === 200) {
+      User.findOneAndUpdate({user_id}, { $set: {playlist_id}}, (err) => {
+        if (err) console.log('error updating user with playlist');
+      });
       return res.json({Message: 'Playlist Created!'});
     }
     else {
@@ -114,15 +60,16 @@ router.post('/create/:id', (req, res) => {
   });
 });
 
-router.post('/add/:track', checkToken, (req, res) => {
+router.post('/add/:track', (req, res) => {
 
+  access_token = req.headers.token;
   let track = req.params.track;
 
   request({
-    url: `https://api.spotify.com/v1/users/${user_id}/playlists/${playlist_id}/tracks`,
+    url: `https://api.spotify.com/v1/users/${res.user.user_id}/playlists/${res.user.playlist_id}/tracks`,
     method: 'POST',
     headers: {
-      'Authorization': 'Bearer ' + access_token,
+      'Authorization': `Bearer ${access_token}`,
       'Content-Type': 'application/json'
     },
     json: {
