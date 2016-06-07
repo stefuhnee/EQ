@@ -14,6 +14,14 @@ process.env.MONGOLAB_URI = 'mongodb://localhost/test_db';
 require('../server');
 
 describe('unit tests', () => {
+
+  after((done) => {
+    process.env.MONGOLAB_URI = dbPort;
+    mongoose.connection.db.dropDatabase(() => {
+      done();
+    });
+  });
+
   let authString;
   let baseString;
   let req;
@@ -98,7 +106,7 @@ describe('unit tests', () => {
 
     it('should sign in a user with a token', (done) => {
       request('localhost:8888')
-      .get('/login')
+      .get('/signin')
       .auth('test2', 'test2')
       .end((err, res) => {
         expect(err).to.eql(null);
@@ -106,20 +114,6 @@ describe('unit tests', () => {
         expect(res.body.token).to.eql(token);
         done();
       });
-    });
-  });
-});
-
-describe('catch all test', () => {
-
-  it('should give an error for unsupported routes', (done) => {
-    request('localhost:8888')
-    .get('/test')
-    .end((err, res) => {
-      expect(err).to.not.eql(null);
-      expect(res).to.have.status(404);
-      expect(res.body).to.eql({Message: 'Not Found'});
-      done();
     });
   });
 });

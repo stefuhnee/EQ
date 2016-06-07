@@ -19,7 +19,7 @@ router.post('/signup', bodyParser, (req, res, next) => {
   });
 });
 
-router.get('/login', basicAuth, (req, res, next) => {
+router.get('/signin', basicAuth, (req, res, next) => {
   let username = req.auth.username;
   User.findOne({username}, (err, user) => {
     if (err || !user) return next(new Error('Cannot find user'));
