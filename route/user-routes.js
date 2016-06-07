@@ -20,7 +20,7 @@ router.post('/signup', bodyParser, (req, res, next) => {
   });
 });
 
-router.get('/login/:managerID', basicAuth, (req, res, next) => {
+router.get('/signin/:managerID', basicAuth, (req, res, next) => {
   let managerID = req.params.managerID;
   let username = req.auth.username;
   User.findOne({username}, (err, user) => {
@@ -39,8 +39,8 @@ router.get('/login/:managerID', basicAuth, (req, res, next) => {
         });
         console.log('sessionArray', sessionArray);
       } else {
-      console.log('user already exists', session.users);
-    }
+        console.log('user already exists', session.users);
+      }
     });
     return res.json({token: user.generateToken()});
   });
