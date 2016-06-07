@@ -5,7 +5,7 @@ const app = express();
 const mongoose = require('mongoose');
 const passport = require('passport');
 const bodyParser = require('body-parser').json();
-const authRouter = require('./route/user-auth');
+const spotifyAuthRouter = require('./route/spotify-auth');
 const playlistRouter = require('./route/manage-playlist');
 const userAuth = require('./route/user-routes');
 
@@ -20,7 +20,7 @@ app.use(bodyParser);
 
 app.use('/', userAuth);
 
-app.use('/', authRouter);
+app.use('/', spotifyAuthRouter);
 
 app.use('/', playlistRouter);
 
