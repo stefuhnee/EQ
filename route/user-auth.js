@@ -15,6 +15,8 @@ const generateRandomString = require('../lib/generate-random-string');
 
 const User = require('../model/user');
 
+let access_token;
+
 router.use(express.static(__dirname + '/../public'))
    .use(cookieParser());
 
@@ -22,6 +24,7 @@ router.get('/login', (req, res) => {
 
   let state = generateRandomString(16);
   res.cookie(stateKey, state);
+  console.log('Cookies', req.cookies)
 
   // your application requests authorization
   let scope = 'user-read-private playlist-modify-private';
@@ -67,7 +70,7 @@ router.get('/callback', function(req, res) {
     request.post(authOptions, function(error, response, body) {
       if (!error && response.statusCode === 200) {
 
-        let access_token = body.access_token;
+        access_token = body.access_token;
         let expires_in = body.expires_in * 1000;
         let refresh_token = body.refresh_token;
         console.log(access_token);
@@ -92,7 +95,7 @@ router.get('/callback', function(req, res) {
           });
         });
       }
-      res.send('response');
+      res.send(`Please include this access token with every request: ${access_token}`);
     });
   }
 });
