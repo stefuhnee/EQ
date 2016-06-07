@@ -75,13 +75,12 @@ describe('playlist routes', () => {
     .set('token', token)
     .set('username', manager.username)
     .end((err,res) => {
-      console.log(res);
       expect(err).to.eql(null);
-      expect(res.body.message).to.eql('Here is a playlist');
+      expect(res.body.Message).to.eql('Requested Playlist');
       done();
     });
   });
-  
+
   it('should add a track', (done) => {
     request('localhost:8888')
     .post('/add/spotify:track:33vzOPcd9FRirYGlCu32x4')

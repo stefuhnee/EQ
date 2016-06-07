@@ -16,20 +16,22 @@ router.use('*', checkToken);
 router.use('*', jwtAuth);
 
 router.get('/playlist', (req, res, next) => {
-
   playlist_id = res.session.playlist_id;
   manager_id = res.manager.username;
   access_token = res.manager.accessToken;
+
   let pTracks;
-  request
+
+  requestAgent
   .get(`https://api.spotify.com/v1/users/${manager_id}/playlists/${playlist_id}`)
   .set('Authorization', `Bearer ${access_token}`)
   .end((err, res) => {
-    console.log(res.body.tracks.items[0]);
+    console.log('tracks', res.body.tracks.items[0]);
     if (err) return next(err);
     pTracks = res.body.tracks.items;
+    console.log(pTracks);
   });
-  res.json({tracks: pTracks});
+  res.send(pTracks);
 });
 
 router.post('/create/:name', (req, res, next) => {
