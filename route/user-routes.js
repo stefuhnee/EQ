@@ -20,6 +20,7 @@ router.post('/signup', bodyParser, (req, res, next) => {
   });
 });
 
+
 router.get('/signin/:managerID', basicAuth, (req, res, next) => {
   let managerID = req.params.managerID;
   let username = req.auth.username;

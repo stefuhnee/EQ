@@ -28,9 +28,9 @@ app.use((err, req, res, next) => {
   res.send('Error: ', err.message);
 });
 
-// app.all('*', (req, res) => {
-//   res.status(404).json({Message:'Not Found'});
-// });
+app.all('*', (req, res) => {
+  res.status(404).json({Message:'Not Found'});
+});
 
 app.listen(8888, () => {
   console.log('Up on 8888');
