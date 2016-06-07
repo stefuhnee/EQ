@@ -101,7 +101,7 @@ router.delete('/delete/:track', findUser, checkToken, jwtAuth, (req, res, next) 
   let manager_id = manager.username;
   let playlist_id = res.session.playlist_id;
   access_token = manager.accessToken;
-  requestAgent
+  request
     .del(`https://api.spotify.com/v1/users/${manager_id}/playlists/${playlist_id}/tracks`)
     .send({
       'tracks' : [
