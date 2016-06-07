@@ -73,7 +73,7 @@ router.get('/callback', function(req, res) {
         access_token = body.access_token;
         let expires_in = body.expires_in * 1000;
         let refresh_token = body.refresh_token;
-        
+
         let options = {
           url: 'https://api.spotify.com/v1/me',
           headers: { 'Authorization': 'Bearer ' + access_token },
@@ -83,10 +83,7 @@ router.get('/callback', function(req, res) {
         // use the access token to access the Spotify Web API
         request.get(options, function(error, response, body) {
 
-          console.log('body', body);
           manager_id = body.id;
-          console.log('body id', body.id);
-          console.log('manager id', manager_id)
 
           let newManager = new Manager({username: manager_id, tokenExpires: expires_in + Date.now(), accessToken: access_token, refreshToken: refresh_token});
           let newSession = new Session({manager_id: manager_id});
