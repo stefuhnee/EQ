@@ -8,7 +8,7 @@ const spotifyAuthRouter = require('./route/spotify-auth');
 const playlistRouter = require('./route/manage-playlist');
 const userAuth = require('./route/user-routes');
 
-const dbPort = process.env.MONGOLAB_URI || 'mongodb://localhost/dev_db';
+const dbPort = process.env.MONGODB_URI || 'mongodb://localhost/dev_db';
 mongoose.connect(dbPort);
 
 
