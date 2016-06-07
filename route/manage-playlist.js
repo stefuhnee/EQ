@@ -71,30 +71,31 @@ router.post('/create/:name', findModels, checkToken, jwtAuth, (req, res, next) =
   .set('Accept', 'application/json')
   .end((err,res) => {
 
-    if(err) next(err);
+    if(err) return next(err);
     let playlist_id = res.body.id;
 
-    if(!err) {
+    if (!err) {
       Session.findOneAndUpdate({manager_id}, {$set: {playlist_id}}, (err) => {
-        if (err) next(err);
+        if (err) return next(err);
+        return res.json({Message:'Playlist Created!'});
       });
     }
-
+    return next(err);
   });
-  res.json({Message:'Playlist Created!'});
 });
 
 router.post('/add/:track', findModels, checkToken, jwtAuth, (req, res, next) => {
-
+  let playlist_id = res.session.playlist_id;
+  let manager_id = res.session.manager_id;
   access_token = res.manager.accessToken;
   let track = req.params.track;
-
   request
-    .post(`https://api.spotify.com/v1/users/${res.session.manager_id}/playlists/${res.session.playlist_id}/tracks`)
+    .post(`https://api.spotify.com/v1/users/${manager_id}/playlists/${playlist_id}/tracks`)
     .send({uris: [`${track}`]})
     .set('Authorization', `Bearer ${access_token}`)
     .set('Accept', 'application/json')
     .end((err) => {
+      console.log('add err', err);
       if(err) return next(err);
       res.json({Message:'Track added!'});
     });
