@@ -117,9 +117,9 @@ router.delete('/delete/:track', findUser, checkToken, jwtAuth, (req, res, next) 
       'Accept', 'application/json'
     )
     .end((err) => {
-      if(err) return err;
+      if(err) next(err);
     });
-  res.send('ending');
+  res.json({Message:'Track deleted!'});
 });
 
 module.exports = router;
