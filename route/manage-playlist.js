@@ -2,23 +2,25 @@
 
 const router = require('express').Router();
 const request = require('request');
-const User = require('../model/user');
+const Session = require('../model/session');
 const findUser = require('../lib/find-user');
 const checkToken = require('../lib/check-token');
 const requestAgent = require('superagent');
 let access_token;
+let playlist_id;
+let manager_id;
 
 router.use('*', findUser);
 router.use('*', checkToken);
 
 router.get('/playlist', (req, res) => {
 
-  let playlist_id = req.headers.name;
-  let user_id = req.headers.id;
-  access_token = req.headers.token;
+  playlist_id = res.session.playlist_id;
+  manager_id = res.manager.username;
+  access_token = res.manager.accessToken;
   let pTracks;
   request
-  .get(`https://api.spotify.com/v1/users/${user_id}/playlists/${playlist_id}`)
+  .get(`https://api.spotify.com/v1/users/${manager_id}/playlists/${playlist_id}`)
   .set('Authorization', `Bearer ${access_token}`)
   .end((err, res) => {
     console.log(res.body.tracks.items[0]);
@@ -30,12 +32,12 @@ router.get('/playlist', (req, res) => {
 
 router.post('/create/:name', (req, res) => {
 
-  access_token = req.headers.token;
-  let user_id = res.user.user_id;
+  access_token = res.manager.accessToken;
+  manager_id = res.manager.username;
   let playlistName = req.params.name;
 
   request({
-    url: `https://api.spotify.com/v1/users/${user_id}/playlists`,
+    url: `https://api.spotify.com/v1/users/${manager_id}/playlists`,
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${access_token}`,
@@ -48,7 +50,7 @@ router.post('/create/:name', (req, res) => {
   }, (err, response, body) => {
     let playlist_id = body.id;
     if (!body.error && res.statusCode === 200) {
-      User.findOneAndUpdate({user_id}, { $set: {playlist_id}}, (err) => {
+      Session.findOneAndUpdate({manager_id}, { $set: {playlist_id}}, (err) => {
         if (err) console.log('error updating user with playlist');
       });
       return res.json({Message: 'Playlist Created!'});
@@ -61,11 +63,11 @@ router.post('/create/:name', (req, res) => {
 
 router.post('/add/:track', (req, res) => {
 
-  access_token = req.headers.token;
+  access_token = res.manager.accessToken;
   let track = req.params.track;
 
   request({
-    url: `https://api.spotify.com/v1/users/${res.user.user_id}/playlists/${res.user.playlist_id}/tracks`,
+    url: `https://api.spotify.com/v1/users/${res.session.manager_id}/playlists/${res.session.playlist_id}/tracks`,
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${access_token}`,
@@ -86,13 +88,13 @@ router.post('/add/:track', (req, res) => {
 });
 
 router.delete('/delete/:track', (req, res) => {
-  let user = res.user;
+  let manager = res.manager;
   let track = req.params.track;
-  let user_id = req.headers.username;
-  let playlist_id = user.playlist_id;
-  access_token = req.headers.token;
+  let manager_id = manager.username;
+  let playlist_id = res.session.playlist_id;
+  access_token = manager.accessToken;
   requestAgent
-    .del(`https://api.spotify.com/v1/users/${user_id}/playlists/${playlist_id}/tracks`)
+    .del(`https://api.spotify.com/v1/users/${manager_id}/playlists/${playlist_id}/tracks`)
     .send({
       'tracks' : [
         {

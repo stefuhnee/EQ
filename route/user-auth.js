@@ -13,7 +13,8 @@ const stateKey = 'spotify_auth_state';
 
 const generateRandomString = require('../lib/generate-random-string');
 
-const User = require('../model/user');
+const Manager = require('../model/manager');
+const Session = require('../model/session');
 
 let access_token;
 
@@ -24,7 +25,6 @@ router.get('/login', (req, res) => {
 
   let state = generateRandomString(16);
   res.cookie(stateKey, state);
-  console.log('Cookies', req.cookies)
 
   // your application requests authorization
   let scope = 'user-read-private playlist-modify-private';
@@ -84,12 +84,20 @@ router.get('/callback', function(req, res) {
         // use the access token to access the Spotify Web API
         request.get(options, function(error, response, body) {
           console.log(body);
-          let newUser = new User({user_id: body.id, tokenExpires: expires_in + Date.now(), accessToken: access_token, refreshToken: refresh_token});
+          let newManager = new Manager({username: body.id, tokenExpires: expires_in + Date.now(), accessToken: access_token, refreshToken: refresh_token});
+          let newSession = new Session({manager_id: body.id});
 
-          User.findOneAndUpdate({user_id: body.id}, { $set: {accessToken: access_token, refreshToken: refresh_token}}, (err, user) => {
-            if (!user) {
-              newUser.save((err) => {
-                if (err) console.log('save error');
+          Manager.findOneAndUpdate({username: body.id}, { $set: {accessToken: access_token, refreshToken: refresh_token}}, (err, manager) => {
+            if (!manager) {
+              newManager.save((err) => {
+                if (err) console.log('manager save error');
+              });
+            }
+          });
+          Session.findOne({manager_id: body.id}, (err, session) => {
+            if (!session) {
+              newSession.save((err) => {
+                if (err) console.log('session save error');
               });
             }
           });
