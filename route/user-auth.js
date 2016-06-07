@@ -13,9 +13,11 @@ const stateKey = 'spotify_auth_state';
 
 const generateRandomString = require('../lib/generate-random-string');
 
-const User = require('../model/user');
+const Manager = require('../model/manager');
+const Session = require('../model/session');
 
 let access_token;
+let manager_id;
 
 router.use(express.static(__dirname + '/../public'))
    .use(cookieParser());
@@ -24,7 +26,6 @@ router.get('/login', (req, res) => {
 
   let state = generateRandomString(16);
   res.cookie(stateKey, state);
-  console.log('Cookies', req.cookies)
 
   // your application requests authorization
   let scope = 'user-read-private playlist-modify-private';
@@ -73,6 +74,7 @@ router.get('/callback', function(req, res) {
         access_token = body.access_token;
         let expires_in = body.expires_in * 1000;
         let refresh_token = body.refresh_token;
+        manager_id = body.id;
         console.log(access_token);
 
         let options = {
@@ -84,18 +86,26 @@ router.get('/callback', function(req, res) {
         // use the access token to access the Spotify Web API
         request.get(options, function(error, response, body) {
           console.log(body);
-          let newUser = new User({user_id: body.id, tokenExpires: expires_in + Date.now(), accessToken: access_token, refreshToken: refresh_token});
+          let newManager = new Manager({username: manager_id, tokenExpires: expires_in + Date.now(), accessToken: access_token, refreshToken: refresh_token});
+          let newSession = new Session({manager_id: manager_id});
 
-          User.findOneAndUpdate({user_id: body.id}, { $set: {accessToken: access_token, refreshToken: refresh_token}}, (err, user) => {
-            if (!user) {
-              newUser.save((err) => {
-                if (err) console.log('save error');
+          Manager.findOneAndUpdate({username: manager_id}, { $set: {accessToken: access_token, refreshToken: refresh_token}}, (err, manager) => {
+            if (!manager) {
+              newManager.save((err) => {
+                if (err) console.log('manager save error');
+              });
+            }
+          });
+          Session.findOne({manager_id: manager_id}, (err, session) => {
+            if (!session) {
+              newSession.save((err) => {
+                if (err) console.log('session save error');
+                res.send('Please have users include the field username in the headers of every request');
               });
             }
           });
         });
       }
-      res.send(`Please include this access token with every request: ${access_token}`);
     });
   }
 });
