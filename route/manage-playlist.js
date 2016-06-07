@@ -11,11 +11,8 @@ let access_token;
 let playlist_id;
 let manager_id;
 
-router.use('*', findUser);
-router.use('*', checkToken);
-router.use('*', jwtAuth);
+router.get('/playlist', findUser, checkToken, jwtAuth, (req, res, next) => {
 
-router.get('/playlist', (req, res, next) => {
   playlist_id = res.session.playlist_id;
   manager_id = res.manager.username;
   access_token = res.manager.accessToken;
@@ -34,7 +31,7 @@ router.get('/playlist', (req, res, next) => {
   res.send(pTracks);
 });
 
-router.post('/create/:name', (req, res, next) => {
+router.post('/create/:name', findUser, checkToken, jwtAuth, (req, res, next) => {
 
   access_token = res.manager.accessToken;
   manager_id = res.manager.username;
@@ -65,7 +62,7 @@ router.post('/create/:name', (req, res, next) => {
   });
 });
 
-router.post('/add/:track', (req, res, next) => {
+router.post('/add/:track', findUser, checkToken, jwtAuth, (req, res, next) => {
 
   access_token = res.manager.accessToken;
   let track = req.params.track;
@@ -91,7 +88,7 @@ router.post('/add/:track', (req, res, next) => {
   });
 });
 
-router.delete('/delete/:track', (req, res, next) => {
+router.delete('/delete/:track', findUser, checkToken, jwtAuth, (req, res, next) => {
   let manager = res.manager;
   let track = req.params.track;
   let manager_id = manager.username;
