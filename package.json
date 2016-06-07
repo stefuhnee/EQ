@@ -63,5 +63,6 @@
     "passport-spotify": "^0.3.0",
     "querystring": "^0.2.0",
     "request": "^2.72.0",
+    "superagent": "^2.0.0"
   }
 }
