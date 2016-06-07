@@ -1,12 +1,12 @@
 'use strict';
 
 const router = require('express').Router();
-const request = require('request');
+//const request = require('request');
 const Session = require('../model/session');
 const findUser = require('../lib/find-user');
 const checkToken = require('../lib/check-token');
 const jwtAuth = require('../lib/jwt-auth');
-const requestAgent = require('superagent');
+const request = require('superagent');
 let access_token;
 let playlist_id;
 let manager_id;
@@ -16,19 +16,41 @@ router.get('/playlist', findUser, checkToken, jwtAuth, (req, res, next) => {
   playlist_id = res.session.playlist_id;
   manager_id = res.manager.username;
   access_token = res.manager.accessToken;
-
-  let pTracks;
-
-  requestAgent
-  .get(`https://api.spotify.com/v1/users/${manager_id}/playlists/${playlist_id}`)
-  .set('Authorization', `Bearer ${access_token}`)
-  .end((err, res) => {
-    console.log('tracks', res.body.tracks.items[0]);
-    if (err) return next(err);
-    pTracks = res.body.tracks.items;
-    console.log(pTracks);
+  let pTracks= [];
+  let plPromise = new Promise((resolve,reject) => {
+    request
+.get(`https://api.spotify.com/v1/users/${manager_id}/playlists/${playlist_id}`)
+.set('Authorization', 'Bearer ' + access_token)
+.end((err, res) => {
+  if(err) return reject({message: err});
+  let playlistArr =res.body.tracks.items;
+  resolve (pTracks = playlistArr.map(function(item, index) {
+    if(item.track.artists.length > 1) {
+      return {
+        postion: index,
+        id: item.track.id,
+        name: item.track.name,
+        artistOne:item.track.artists[0].name,
+        artistTwo:item.track.artists[1].name,
+        addedBy:item.added_by.id
+      };
+    } else {
+      return {
+        position: index,
+        id: item.track.id,
+        name: item.track.name,
+        artist: item.track.artists[0].name,
+        addedBy: item.added_by.id
+      };
+    }
+  }));
+});
   });
-  res.send(pTracks);
+  plPromise.then((plData) => {
+    res.json({playlist:plData});
+  }, (err) => {
+    res.json(err);
+  });
 });
 
 router.post('/create/:name', findUser, checkToken, jwtAuth, (req, res, next) => {
@@ -37,29 +59,22 @@ router.post('/create/:name', findUser, checkToken, jwtAuth, (req, res, next) => 
   manager_id = res.manager.username;
   let playlistName = req.params.name;
 
-  request({
-    url: `https://api.spotify.com/v1/users/${manager_id}/playlists`,
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${access_token}`,
-      'Content-Type': 'application/json'
-    },
-    json: {
-      name: playlistName,
-      public: false
-    }
-  }, (err, response, body) => {
-    let playlist_id = body.id;
-    if (!body.error && res.statusCode === 200) {
-      Session.findOneAndUpdate({manager_id}, { $set: {playlist_id}}, (err) => {
+  request
+  .post(`https://api.spotify.com/v1/users/${manager_id}/playlists`)
+  .send({name:playlistName, public:false})
+  .set('Authorization', `Bearer ${access_token}`)
+  .set('Accept', 'application/json')
+  .end((err,res) => {
+    if(err) next(err);
+    let playlist_id = res.body.id;
+    console.log('create playlist', playlist_id);
+    if(!err) {
+      Session.findOneAndUpdate({manager_id}, {$set: {playlist_id}}, (err) => {
         if (err) next(err);
       });
-      return res.json({Message: 'Playlist Created!'});
-    }
-    else {
-      next(body.error);
     }
   });
+  res.json({Message:'Playlist Created!'});
 });
 
 router.post('/add/:track', findUser, checkToken, jwtAuth, (req, res, next) => {
@@ -67,25 +82,17 @@ router.post('/add/:track', findUser, checkToken, jwtAuth, (req, res, next) => {
   access_token = res.manager.accessToken;
   let track = req.params.track;
 
-  request({
-    url: `https://api.spotify.com/v1/users/${res.session.manager_id}/playlists/${res.session.playlist_id}/tracks`,
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${access_token}`,
-      'Content-Type': 'application/json'
-    },
-    json: {
-      uris: [`${track}`]
-    }
-  }, (err, response, body) => {
-    console.log(body);
-    if (!body.error && res.statusCode === 200) {
-      return res.json({Message: 'Track added!'});
-    }
-    else {
-      next(body.error);
-    }
+
+  request
+  .post(`https://api.spotify.com/v1/users/${res.session.manager_id}/playlists/${res.session.playlist_id}/tracks`)
+  .send({uris: [`${track}`]})
+  .set('Authorization', `Bearer ${access_token}`)
+  .set('Accept', 'application/json')
+  .end((err,res) => {
+    if(err) return next(err);
+    //console.log('add request', res);
   });
+  res.json({Message:'Track added!'});
 });
 
 router.delete('/delete/:track', findUser, checkToken, jwtAuth, (req, res, next) => {
