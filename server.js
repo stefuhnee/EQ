@@ -4,7 +4,7 @@ const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
 const passport = require('passport');
-const authRouter = require('./route/user-auth');
+// const authRouter = require('./route/user-auth');
 const playlistRouter = require('./route/manage-playlist');
 
 const dbPort = process.env.MONGOLAB_URI || 'mongodb://localhost/dev_db';
@@ -15,7 +15,7 @@ app.use(passport.session());
 app.use(express.static(__dirname + '/public'));
 
 
-app.use('/', authRouter);
+// app.use('/', authRouter);
 
 app.use('/', playlistRouter);
 
