@@ -15,10 +15,10 @@ router.post('/signup', bodyParser, (req, res, next) => {
 
   User.findOne({username: req.body.username}, (err, user) => {
     if (err || user) return next(new Error('Could not create user'));
-
+    newUser.user_token = newUser.generateToken();
     newUser.save((err, user) => {
       if (err) return next(new Error('Could not create user'));
-      res.json({token: user.generateToken()});
+      res.send('user created');
     });
   });
 });
