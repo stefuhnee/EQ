@@ -18,7 +18,6 @@ describe('playlist routes', () => {
 
   let token;
   let manager;
-  let playlistId;
 
   before((done) => {
     request('localhost:8888')
@@ -54,7 +53,7 @@ describe('playlist routes', () => {
   describe('tests that need a playlist created', () => {
 
     before((done) => {
-       request('localhost:8888')
+      request('localhost:8888')
        .post('/create/test')
        .set('username', manager.username)
        .set('token', token)
@@ -63,7 +62,7 @@ describe('playlist routes', () => {
          expect(res.body.Message).to.eql('Playlist Created!');
          done();
        });
-     });
+    });
 
     it('should get a playlist', (done) => {
       request('localhost:8888')

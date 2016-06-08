@@ -18,7 +18,6 @@ router.get('/playlist', findModels, checkToken, jwtAuth, (req, res) => {
   playlist_id = res.session.playlist_id;
   manager_id = res.manager.username;
   access_token = res.manager.accessToken;
-  let pTracks = [];
 
   let plPromise = new Promise((resolve,reject) => {
     request
@@ -29,7 +28,7 @@ router.get('/playlist', findModels, checkToken, jwtAuth, (req, res) => {
         if (err) return reject({message: err});
 
         let playlistArr =res.body.tracks.items;
-        resolve (pTracks = playlistArr.map(function(item, index) {
+        resolve (playlistArr.map(function(item, index) {
 
           if(item.track.artists.length > 1) {
             return {
@@ -201,6 +200,7 @@ router.delete('/delete/:track', findModels, checkToken, jwtAuth, (req, res, next
 
 router.use((err, req, res, next) => {
   res.json(err);
+  next(err);
 });
 
 module.exports = router;
