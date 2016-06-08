@@ -132,28 +132,94 @@ router.delete('/delete/:track', findModels, checkToken, jwtAuth, (req, res, next
   let playlist_id = res.session.playlist_id;
   access_token = manager.accessToken;
 
-  request
-    .del(`https://api.spotify.com/v1/users/${manager_id}/playlists/${playlist_id}/tracks`)
-    .send({
-      'tracks' : [
-        {
-          'uri' : `${track}`
-        }
-      ]
-    })
-    .set(
-      'Authorization', `Bearer ${access_token}`
-    )
-    .set(
-      'Accept', 'application/json'
-    )
-    .end((err) => {
-      if(err) next(err);
-      res.json({Message:'Track deleted!'});
+  if(res.user === undefined) {
+    Manager.findOne({username: res.manager.username}, (err, manager) => {
+      if (err) return res.send('Cannot find manager.');
+
+      if(manager.vetoes === res.session.users.length + 1) {
+        res.send('Out of vetoes');
+      } else {
+        let newManagerVetoCount = manager.vetoes + 1; //prevent manager from adding same track
+        Manager.findOneAndUpdate({username: manager.username}, {$set: {vetoes: newManagerVetoCount}}, (err) => {
+          if (err) return next(new Error('Cannot update user vetoes'));
+          return;
+        });
+        request
+          .del(`https://api.spotify.com/v1/users/${manager_id}/playlists/${playlist_id}/tracks`)
+          .send({
+            'tracks' : [
+              {
+                'uri' : `${track}`
+              }
+            ]
+          })
+          .set(
+            'Authorization', `Bearer ${access_token}`
+          )
+          .set(
+            'Accept', 'application/json'
+          )
+          .end((err) => {
+            if(err) next(err);
+            res.json({Message:'Track deleted!'});
+          });
+      }
     });
+  } else {
+
+    User.findOne({username: res.user.username}, (err, user) => {
+      if(user.vetoes === res.session.users.length + 1) {
+        res.send('Out of vetoes');
+      } else {
+        let newUserVetoCount = user.vetoes + 1; //prevent user from adding same track
+        User.findOneAndUpdate({username: user.username}, {$set: {vetoes: newUserVetoCount}}, (err) => {
+          if (err) return next(new Error('Cannot update user tracks'));
+        });
+        request
+          .del(`https://api.spotify.com/v1/users/${manager_id}/playlists/${playlist_id}/tracks`)
+          .send({
+            'tracks' : [
+              {
+                'uri' : `${track}`
+              }
+            ]
+          })
+          .set(
+            'Authorization', `Bearer ${access_token}`
+          )
+          .set(
+            'Accept', 'application/json'
+          )
+          .end((err) => {
+            if(err) next(err);
+            res.json({Message:'Track deleted!'});
+          });
+      }
+    });
+  }
+
+  // request
+  //   .del(`https://api.spotify.com/v1/users/${manager_id}/playlists/${playlist_id}/tracks`)
+  //   .send({
+  //     'tracks' : [
+  //       {
+  //         'uri' : `${track}`
+  //       }
+  //     ]
+  //   })
+  //   .set(
+  //     'Authorization', `Bearer ${access_token}`
+  //   )
+  //   .set(
+  //     'Accept', 'application/json'
+  //   )
+  //   .end((err) => {
+  //     if(err) next(err);
+  //     res.json({Message:'Track deleted!'});
+  //   });
 });
 
-router.use((err, req, res, next) => {		
+router.use((err, req, res, next) => {
   res.json(err);
 });
 
