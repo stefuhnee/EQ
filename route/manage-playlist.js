@@ -35,8 +35,7 @@ router.get('/playlist', findModels, checkToken, jwtAuth, (req, res) => {
               id: item.track.id,
               name: item.track.name,
               artistOne:item.track.artists[0].name,
-              artistTwo:item.track.artists[1].name,
-              addedBy:item.added_by.id
+              artistTwo:item.track.artists[1].name
             };
 
           } else {
