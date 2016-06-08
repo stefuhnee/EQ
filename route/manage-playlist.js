@@ -60,37 +60,42 @@ router.get('/playlist', findModels, checkToken, jwtAuth, (req, res) => {
 
 router.post('/create/:name', findModels, checkToken, jwtAuth, (req, res, next) => {
 
+  let name = req.params.name;
   access_token = res.manager.accessToken;
   manager_id = res.manager.username;
-  let playlistName = req.params.name;
 
   request
   .post(`https://api.spotify.com/v1/users/${manager_id}/playlists`)
-  .send({name:playlistName, public:false})
+  .send({name:name, public:false})
   .set('Authorization', `Bearer ${access_token}`)
   .set('Accept', 'application/json')
   .end((err,res) => {
 
-    if(err) next(err);
-    let playlist_id = res.body.id;
-
-    if(!err) {
-      Session.findOneAndUpdate({manager_id}, {$set: {playlist_id}}, (err) => {
-        if (err) next(err);
-      });
+    if (err) {
+      return next(err);
     }
 
+    let playlist_id = res.body.id;
+
+    Session.findOneAndUpdate({manager_id}, {$set: {playlist_id}}, {new: true}, (err) => {
+      // correctly updating
+      if (err) {
+        return next(err);
+      }
+    });
   });
-  res.json({Message:'Playlist Created!'});
+  return res.json({Message:'Playlist Created!'});
 });
 
 router.post('/add/:track', findModels, checkToken, jwtAuth, (req, res, next) => {
 
+  let playlist_id = res.session.playlist_id;
+  let manager_id = res.session.manager_id;
   access_token = res.manager.accessToken;
   let track = req.params.track;
-
+  console.log('session from add', res.session);
   request
-    .post(`https://api.spotify.com/v1/users/${res.session.manager_id}/playlists/${res.session.playlist_id}/tracks`)
+    .post(`https://api.spotify.com/v1/users/${manager_id}/playlists/${playlist_id}/tracks`)
     .send({uris: [`${track}`]})
     .set('Authorization', `Bearer ${access_token}`)
     .set('Accept', 'application/json')
@@ -108,6 +113,8 @@ router.delete('/delete/:track', findModels, checkToken, jwtAuth, (req, res, next
   let manager_id = manager.username;
   let playlist_id = res.session.playlist_id;
   access_token = manager.accessToken;
+
+  console.log('session from delete', res.session)
 
   request
     .del(`https://api.spotify.com/v1/users/${manager_id}/playlists/${playlist_id}/tracks`)
@@ -128,6 +135,10 @@ router.delete('/delete/:track', findModels, checkToken, jwtAuth, (req, res, next
       if(err) next(err);
       res.json({Message:'Track deleted!'});
     });
+});
+
+router.use((err, req, res, next) => {
+  res.json(err);
 });
 
 module.exports = router;
