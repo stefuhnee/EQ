@@ -65,6 +65,8 @@ router.post('/create/:name', findModels, checkToken, jwtAuth, (req, res, next) =
   manager_id = res.manager.username;
   let playlistName = req.params.name;
 
+  if(res.user) return next(new Error('User not allowed to make new playlist'));
+
   request
   .post(`https://api.spotify.com/v1/users/${manager_id}/playlists`)
   .send({name:playlistName, public:false})
