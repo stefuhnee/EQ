@@ -44,19 +44,11 @@ router.get('/signin/:managerID', basicAuth, (req, res, next) => {
         Session.findOneAndUpdate({manager_id: managerID}, { $set: {users: sessionArray}}, (err) => {
           if (err) return next(new Error('Cannot update session'));
         });
-
-      } else {
-        console.log('user already exists', session.users);
       }
     });
     return res.json({token: user.generateToken()});
   });
 
-});
-
-
-router.use((err, req, res, next) => {
-  res.send('Error: ', err.message);
 });
 
 module.exports = router;

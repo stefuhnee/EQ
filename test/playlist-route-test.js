@@ -18,6 +18,7 @@ describe('playlist routes', () => {
 
   let token;
   let manager;
+  let playlistId;
 
   before((done) => {
     request('localhost:8888')
@@ -32,26 +33,9 @@ describe('playlist routes', () => {
   before((done) => {
     let testManager = new Manager({username: '1216797299', accessToken: access_token, refreshToken: 'test', tokenExpires: Date.now() + 100000});
     let testSession = new Session({manager_id: '1216797299'});
-
     testManager.save((err, data) => {
-      if (err) console.log(err);
       manager = data;
-      testSession.save((err) => {
-        if (err) console.log(err);
-        done();
-      });
-    });
-  });
-
-  before(() => {
-    it('should create a playlist', (done) => {
-      request('localhost:8888')
-      .post('/create/test')
-      .set('username', manager.username)
-      .set('token', token)
-      .end((err,res) => {
-        expect(err).to.eql(null);
-        expect(res.body.Message).to.eql('Playlist Created!');
+      testSession.save(() => {
         done();
       });
     });
@@ -64,40 +48,55 @@ describe('playlist routes', () => {
     });
   });
 
-  it('should get a playlist', (done) => {
+  it ('should create a playlist', (done) => {
     request('localhost:8888')
-    .get('/playlist')
-    .set('token', token)
+    .post('/create/test')
     .set('username', manager.username)
+    .set('token', token)
     .end((err,res) => {
-      expect(err).to.eql(null);
-      expect(typeof res.body).to.eql('object');
+      if (err) throw err;
+      expect(res.body.Message).to.eql('Playlist Created!');
       done();
     });
   });
 
-  it('should add a track', (done) => {
-    request('localhost:8888')
-    .post('/add/spotify:track:33vzOPcd9FRirYGlCu32x4')
-    .set('token', token)
-    .set('username', manager.username)
-    .end((err,res) => {
-      console.log('error from test', err);
-      expect(err).to.eql(null);
-      expect(res.body.Message).to.eql('Track added!');
-      done();
-    });
-  });
+  describe('tests that need a playlist created', () => {
 
-  it('should delete a track', (done) => {
-    request('localhost:8888')
-    .delete('/delete/spotify:track:33vzOPcd9FRirYGlCu32x4')
-    .set('token', token)
-    .set('username', manager.username)
-    .end((err,res) => {
-      expect(err).to.eql(null);
-      expect(res.body.Message).to.eql('Track deleted!');
-      done();
+    it('should get a playlist', (done) => {
+      request('localhost:8888')
+      .get('/playlist')
+      .set('token', token)
+      .set('username', manager.username)
+      .end((err,res) => {
+        expect(err).to.eql(null);
+        expect(typeof res.body).to.eql('object');
+        done();
+      });
+    });
+
+    it('should add a track', (done) => {
+      request('localhost:8888')
+      .post('/add/spotify:track:33vzOPcd9FRirYGlCu32x4')
+      .set('token', token)
+      .set('username', manager.username)
+      .end((err,res) => {
+        if (err) throw err;
+        console.log(res.body);
+        expect(res.body).to.eql('Track added!');
+        done();
+      });
+    });
+
+    it('should delete a track', (done) => {
+      request('localhost:8888')
+      .delete('/delete/spotify:track:33vzOPcd9FRirYGlCu32x4')
+      .set('token', token)
+      .set('username', manager.username)
+      .end((err,res) => {
+        expect(err).to.eql(null);
+        expect(res.body.Message).to.eql('Track deleted!');
+        done();
+      });
     });
   });
 });

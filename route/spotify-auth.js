@@ -101,8 +101,8 @@ router.get('/callback', function(req, res) {
                 return res.send('Please have users include the field username in the headers of every request');
               });
             }
-            res.send('Please have users include the field username in the headers of every request');
           });
+          res.send('Please have users include the field username in the headers of every request');
         });
       }
     });
