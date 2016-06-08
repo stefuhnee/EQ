@@ -10,8 +10,6 @@ const dbPort = process.env.MONGOLAB_URI;
 const Session = require('../model/session');
 const Manager = require('../model/manager');
 const checkToken = require('../lib/check-token');
-const findModels = require('../lib/find-models');
-const generateRandomString = require('../lib/generate-random-string');
 
 process.env.MONGOLAB_URI = 'mongodb://localhost/test_db';
 const access_token = process.env.ACCESS_TOKEN;
@@ -30,8 +28,7 @@ describe('unit tests', () => {
     request('localhost:8888')
     .post('/signup')
     .send({username:'test', password:'test'})
-    .end((err, res) => {
-
+    .end((err) => {
       if (err) throw err;
       done();
     });
