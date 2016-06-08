@@ -37,9 +37,9 @@ router.get('/signin/:managerID', basicAuth, (req, res, next) => {
 
     Session.findOne({manager_id: managerID}, (err, session) => {
       if (err || !session) return next(new Error('Cannot find session'));
-      if (session.users.indexOf(user.username) === -1) {
+      if (session.users.indexOf(user._id) === -1) {
         let sessionArray = session.users;
-        sessionArray.push(user.username);
+        sessionArray.push(user._id);
         Session.findOneAndUpdate({manager_id: managerID}, {$set: {users: sessionArray}}, (err) => {
           if (err) return next(new Error('Cannot update session'));
         });
