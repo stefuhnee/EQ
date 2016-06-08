@@ -30,6 +30,6 @@ app.all('*', (req, res) => {
   res.status(404).json({Message:'Not Found'});
 });
 
-app.listen(8888, () => {
-  console.log('Up on 8888');
+app.listen(process.env.PORT || 8888, () => {
+  console.log('Up on ' + (process.env.PORT || 8888));
 });
