@@ -31,5 +31,5 @@ app.all('*', (req, res) => {
 });
 
 app.listen(process.env.PORT || 8888, () => {
-  console.log('Up on' + process.env.PORT || 8888);
+  console.log('Up on ' + (process.env.PORT || 8888));
 });
