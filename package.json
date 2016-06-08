@@ -1,7 +1,7 @@
 {
   "name": "eq",
   "version": "0.0.1",
-  "description": "Create collaborative playlists for a party or a road trip!",
+  "description": "Create collaborative playlists for a party or a road trip using Spotify!",
   "main": "index.js",
   "directories": {
     "test": "test"
@@ -17,7 +17,8 @@
   },
   "keywords": [
     "playlist",
-    "music"
+    "music",
+    "spotify"
   ],
   "contributors": [
     {
@@ -45,6 +46,7 @@
   "devDependencies": {
     "chai": "3.5.0",
     "chai-http": "2.0.1",
+    "eslint": "^2.11.1",
     "gulp": "3.9.1",
     "gulp-eslint": "2.0.0",
     "gulp-mocha": "2.2.0",
