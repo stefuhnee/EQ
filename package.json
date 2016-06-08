@@ -1,7 +1,7 @@
 {
   "name": "eq",
   "version": "0.0.1",
-  "description": "Create collaborative playlists for a party or a road trip!",
+  "description": "Create collaborative playlists for a party or a road trip using Spotify!",
   "main": "index.js",
   "directories": {
     "test": "test"
@@ -17,7 +17,8 @@
   },
   "keywords": [
     "playlist",
-    "music"
+    "music",
+    "spotify"
   ],
   "contributors": [
     {
