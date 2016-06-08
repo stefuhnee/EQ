@@ -33,6 +33,7 @@ describe('unit tests', () => {
     .post('/signup')
     .send({username:'test', password:'test'})
     .end((err, res) => {
+      if (err) throw err;
       token = res.body.token;
       let testSession = new Session({manager_id: '1216797299'});
       testSession.save(() => {
@@ -99,8 +100,8 @@ describe('unit tests', () => {
       .post('/signup')
       .send({username:'test2', password:'test2'})
       .end((err, res) => {
+        if (err) throw err;
         token = res.body.token;
-        expect(err).to.eql(null);
         expect(res).to.have.status(200);
         expect(typeof token).to.eql('string');
         done();
@@ -112,7 +113,7 @@ describe('unit tests', () => {
       .get('/signin/1216797299')
       .auth('test2', 'test2')
       .end((err, res) => {
-        expect(err).to.eql(null);
+        if (err) throw err;
         expect(res).to.have.status(200);
         expect(res.body.token).to.eql(token);
         done();

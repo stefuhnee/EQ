@@ -25,6 +25,7 @@ describe('playlist routes', () => {
     .post('/signup')
     .send({username:'test', password:'test'})
     .end((err, res) => {
+      if (err) throw err;
       token = res.body.token;
       done();
     });
@@ -34,8 +35,10 @@ describe('playlist routes', () => {
     let testManager = new Manager({username: '1216797299', accessToken: access_token, refreshToken: 'test', tokenExpires: Date.now() + 100000});
     let testSession = new Session({manager_id: '1216797299'});
     testManager.save((err, data) => {
+      if (err) throw err;
       manager = data;
-      testSession.save(() => {
+      testSession.save((err) => {
+        if (err) throw err;
         done();
       });
     });
@@ -48,19 +51,19 @@ describe('playlist routes', () => {
     });
   });
 
-  it ('should create a playlist', (done) => {
-    request('localhost:8888')
-    .post('/create/test')
-    .set('username', manager.username)
-    .set('token', token)
-    .end((err,res) => {
-      if (err) throw err;
-      expect(res.body.Message).to.eql('Playlist Created!');
-      done();
-    });
-  });
-
   describe('tests that need a playlist created', () => {
+
+    before((done) => {
+       request('localhost:8888')
+       .post('/create/test')
+       .set('username', manager.username)
+       .set('token', token)
+       .end((err,res) => {
+         if (err) throw err;
+         expect(res.body.Message).to.eql('Playlist Created!');
+         done();
+       });
+     });
 
     it('should get a playlist', (done) => {
       request('localhost:8888')
@@ -68,7 +71,7 @@ describe('playlist routes', () => {
       .set('token', token)
       .set('username', manager.username)
       .end((err,res) => {
-        expect(err).to.eql(null);
+        if (err) throw err;
         expect(typeof res.body).to.eql('object');
         done();
       });
@@ -93,7 +96,7 @@ describe('playlist routes', () => {
       .set('token', token)
       .set('username', manager.username)
       .end((err,res) => {
-        expect(err).to.eql(null);
+        if (err) throw err;
         expect(res.body.Message).to.eql('Track deleted!');
         done();
       });

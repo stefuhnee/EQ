@@ -77,7 +77,8 @@ router.post('/create/:name', findModels, checkToken, jwtAuth, (req, res, next) =
 
     let playlist_id = res.body.id;
 
-    Session.findOneAndUpdate({manager_id}, {$set: {playlist_id}}, (err) => {
+    Session.findOneAndUpdate({manager_id}, {$set: {playlist_id}}, {new: true}, (err) => {
+      // correctly updating
       if (err) {
         return next(err);
       }
@@ -92,6 +93,7 @@ router.post('/add/:track', findModels, checkToken, jwtAuth, (req, res, next) => 
   let manager_id = res.session.manager_id;
   access_token = res.manager.accessToken;
   let track = req.params.track;
+  console.log('session from add', res.session);
   request
     .post(`https://api.spotify.com/v1/users/${manager_id}/playlists/${playlist_id}/tracks`)
     .send({uris: [`${track}`]})
@@ -110,6 +112,8 @@ router.delete('/delete/:track', findModels, checkToken, jwtAuth, (req, res, next
   let manager_id = manager.username;
   let playlist_id = res.session.playlist_id;
   access_token = manager.accessToken;
+
+  console.log('session from delete', res.session)
 
   request
     .del(`https://api.spotify.com/v1/users/${manager_id}/playlists/${playlist_id}/tracks`)
