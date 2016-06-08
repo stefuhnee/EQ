@@ -153,4 +153,8 @@ router.delete('/delete/:track', findModels, checkToken, jwtAuth, (req, res, next
     });
 });
 
+router.use((err, req, res, next) => {		
+  res.json(err);
+});
+
 module.exports = router;
