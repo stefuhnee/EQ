@@ -197,26 +197,6 @@ router.delete('/delete/:track', findModels, checkToken, jwtAuth, (req, res, next
       }
     });
   }
-
-  // request
-  //   .del(`https://api.spotify.com/v1/users/${manager_id}/playlists/${playlist_id}/tracks`)
-  //   .send({
-  //     'tracks' : [
-  //       {
-  //         'uri' : `${track}`
-  //       }
-  //     ]
-  //   })
-  //   .set(
-  //     'Authorization', `Bearer ${access_token}`
-  //   )
-  //   .set(
-  //     'Accept', 'application/json'
-  //   )
-  //   .end((err) => {
-  //     if(err) next(err);
-  //     res.json({Message:'Track deleted!'});
-  //   });
 });
 
 router.use((err, req, res, next) => {
