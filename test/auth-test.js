@@ -9,6 +9,7 @@ const mongoose = require('mongoose');
 const basicAuth = require('../lib/basic-auth');
 const jwtAuth = require('../lib/jwt-auth');
 const dbPort = process.env.MONGOLAB_URI;
+const Session = require('../model/session');
 
 process.env.MONGOLAB_URI = 'mongodb://localhost/test_db';
 require('../server');
@@ -33,7 +34,10 @@ describe('unit tests', () => {
     .send({username:'test', password:'test'})
     .end((err, res) => {
       token = res.body.token;
-      done();
+      let testSession = new Session({manager_id: '1216797299'});
+      testSession.save(() => {
+        done();
+      });
     });
   });
 
@@ -80,7 +84,6 @@ describe('unit tests', () => {
     });
 
   });
-
 
   describe('auth route tests', () => {
 
