@@ -6,6 +6,7 @@ const findModels = require('../lib/find-models');
 const checkToken = require('../lib/check-token');
 const jwtAuth = require('../lib/jwt-auth');
 const request = require('superagent');
+const User = require('../model/user');
 let access_token;
 let playlist_id;
 let manager_id;
@@ -34,8 +35,7 @@ router.get('/playlist', findModels, checkToken, jwtAuth, (req, res) => {
               id: item.track.id,
               name: item.track.name,
               artistOne:item.track.artists[0].name,
-              artistTwo:item.track.artists[1].name,
-              addedBy:item.added_by.id
+              artistTwo:item.track.artists[1].name
             };
 
           } else {
@@ -101,6 +101,7 @@ router.post('/add/:track', findModels, checkToken, jwtAuth, (req, res, next) => 
     .set('Accept', 'application/json')
     .end((err) => {
       if(err) return next(err);
+
       res.json({Message:'Track added!'});
     });
 });

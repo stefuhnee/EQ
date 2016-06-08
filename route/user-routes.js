@@ -15,10 +15,10 @@ router.post('/signup', bodyParser, (req, res, next) => {
 
   User.findOne({username: req.body.username}, (err, user) => {
     if (err || user) return next(new Error('Could not create user'));
-
+    newUser.user_token = newUser.generateToken();
     newUser.save((err, user) => {
       if (err) return next(new Error('Could not create user'));
-      res.json({token: user.generateToken()});
+      res.send('user created');
     });
   });
 });
@@ -37,9 +37,9 @@ router.get('/signin/:managerID', basicAuth, (req, res, next) => {
 
     Session.findOne({manager_id: managerID}, (err, session) => {
       if (err || !session) return next(new Error('Cannot find session'));
-      if (session.users.indexOf(user._id) === -1) {
+      if (session.users.indexOf(user.username) === -1) {
         let sessionArray = session.users;
-        sessionArray.push(user._id);
+        sessionArray.push(user.username);
         Session.findOneAndUpdate({manager_id: managerID}, {$set: {users: sessionArray}}, (err) => {
           if (err) return next(new Error('Cannot update session'));
         });
