@@ -8,7 +8,6 @@ const cookieParser = require('cookie-parser');
 
 const client_id = process.env.CLIENT_ID; // Your client id
 const client_secret = process.env.CLIENT_SECRET; // Your secret
-//const redirect_uri = process.env.REDIRECT_URI || 'http://localhost:8888/callback'; // Your redirect uri
 const stateKey = 'spotify_auth_state';
 
 const generateRandomString = require('../lib/generate-random-string');
