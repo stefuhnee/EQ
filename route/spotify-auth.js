@@ -2,18 +2,13 @@
 
 const express = require('express');
 const router = express.Router();
-const request = require('request'); 
+const request = require('request');
 const querystring = require('querystring');
 const cookieParser = require('cookie-parser');
 
-<<<<<<< HEAD
-const client_id = process.env.CLIENT_ID;
-const client_secret = process.env.CLIENT_SECRET;
-const redirect_uri = 'http://localhost:8888/callback'; // Your redirect uri
-=======
 const client_id = process.env.CLIENT_ID; // Your client id
 const client_secret = process.env.CLIENT_SECRET; // Your secret
->>>>>>> master
+
 const stateKey = 'spotify_auth_state';
 
 const generateRandomString = require('../lib/generate-random-string');

@@ -7,6 +7,8 @@ const checkToken = require('../lib/check-token');
 const jwtAuth = require('../lib/jwt-auth');
 const request = require('superagent');
 const User = require('../model/user');
+const Manager = require('../model/manager');
+
 let access_token;
 let playlist_id;
 let manager_id;
@@ -60,49 +62,65 @@ router.get('/playlist', findModels, checkToken, jwtAuth, (req, res) => {
 
 router.post('/create/:name', findModels, checkToken, jwtAuth, (req, res, next) => {
 
-  let name = req.params.name;
   access_token = res.manager.accessToken;
   manager_id = res.manager.username;
+  let playlistName = req.params.name;
 
   request
   .post(`https://api.spotify.com/v1/users/${manager_id}/playlists`)
-  .send({name:name, public:false})
+  .send({name:playlistName, public:false})
   .set('Authorization', `Bearer ${access_token}`)
   .set('Accept', 'application/json')
   .end((err,res) => {
 
-    if (err) {
-      return next(err);
-    }
-
+    if(err) next(err);
     let playlist_id = res.body.id;
 
-    Session.findOneAndUpdate({manager_id}, {$set: {playlist_id}}, {new: true}, (err) => {
-      // correctly updating
-      if (err) {
-        return next(err);
-      }
-    });
+    if(!err) {
+      Session.findOneAndUpdate({manager_id}, {$set: {playlist_id}}, (err) => {
+        if (err) next(err);
+      });
+    }
+
   });
-  return res.json({Message:'Playlist Created!'});
+  res.json({Message:'Playlist Created!'});
 });
 
 router.post('/add/:track', findModels, checkToken, jwtAuth, (req, res, next) => {
 
-  let playlist_id = res.session.playlist_id;
-  let manager_id = res.session.manager_id;
   access_token = res.manager.accessToken;
   let track = req.params.track;
-  console.log('session from add', res.session);
+
   request
-    .post(`https://api.spotify.com/v1/users/${manager_id}/playlists/${playlist_id}/tracks`)
+    .post(`https://api.spotify.com/v1/users/${res.session.manager_id}/playlists/${res.session.playlist_id}/tracks`)
     .send({uris: [`${track}`]})
     .set('Authorization', `Bearer ${access_token}`)
     .set('Accept', 'application/json')
     .end((err) => {
       if(err) return next(err);
 
-      res.json({Message:'Track added!'});
+      if(res.user === undefined) {
+        Manager.findOne({username: res.manager.username}, (err, manager) => {
+          if (err) return res.send('Cannot find manager.');
+
+          let managerTrackArray = manager.tracks; //prevent manager from adding same track
+          managerTrackArray.push(track);
+          Manager.findOneAndUpdate({username: manager.username}, {$set: {tracks: managerTrackArray}}, (err) => {
+            if (err) return next(new Error('Cannot update user tracks'));
+            return res.json({Message:'Track added!'});
+          });
+        });
+      } else {
+
+        User.findOne({username: res.user.username}, (err, user) => {
+          let userTrackArray = user.tracks; //prevent user from adding same track
+          userTrackArray.push(track);
+          User.findOneAndUpdate({username: user.username}, {$set: {tracks: userTrackArray}}, (err) => {
+            if (err) return next(new Error('Cannot update user tracks'));
+            res.json({Message:'Track added!'});
+          });
+        });
+      }
     });
 });
 
@@ -113,8 +131,6 @@ router.delete('/delete/:track', findModels, checkToken, jwtAuth, (req, res, next
   let manager_id = manager.username;
   let playlist_id = res.session.playlist_id;
   access_token = manager.accessToken;
-
-  console.log('session from delete', res.session)
 
   request
     .del(`https://api.spotify.com/v1/users/${manager_id}/playlists/${playlist_id}/tracks`)
@@ -135,10 +151,6 @@ router.delete('/delete/:track', findModels, checkToken, jwtAuth, (req, res, next
       if(err) next(err);
       res.json({Message:'Track deleted!'});
     });
-});
-
-router.use((err, req, res, next) => {
-  res.json(err);
 });
 
 module.exports = router;
