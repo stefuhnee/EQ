@@ -29,6 +29,7 @@ router.get('/login', (req, res) => {
   res.cookie(stateKey, state);
   let scope = 'user-read-private playlist-modify-private';
   redirect_uri = `${req.headers.host === 'localhost:8888'?'http://localhost:8888/callback':'https://eq-project.herokuapp.com/callback'}`;
+
   res.redirect('https://accounts.spotify.com/authorize?' +
     querystring.stringify({
       response_type: 'code',
@@ -97,6 +98,7 @@ router.get('/callback', (req, res, next) => {
           Session.findOne({manager_id: manager_id}, (err, session) => {
 
             if (!session) {
+              
               newSession.save((err) => {
                 if (err) return next(err);
                 else {

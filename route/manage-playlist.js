@@ -174,6 +174,7 @@ router.delete('/delete/:track', findModels, checkToken, jwtAuth, (req, res, next
       } else {
         let newUserVetoCount = user.vetoes + 1; //prevent user from adding same track
         User.findOneAndUpdate({username: user.username}, {$set: {vetoes: newUserVetoCount}}, (err) => {
+          
           if (err) return next(new Error('Cannot update user tracks'));
         });
         request
@@ -201,9 +202,7 @@ router.delete('/delete/:track', findModels, checkToken, jwtAuth, (req, res, next
 });
 
 router.use((err, req, res, next) => {
-
   res.json(err.message);
-
   next(err);
 });
 
