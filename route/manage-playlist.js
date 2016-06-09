@@ -32,7 +32,7 @@ router.get('/playlist', findModels, checkToken, jwtAuth, (req, res) => {
         let playlistArr =res.body.tracks.items;
         resolve (playlistArr.map(function(item, index) {
 
-          if(item.track.artists.length > 1) {
+          if (item.track.artists.length > 1) {
             return {
               postion: index,
               id: item.track.id,
@@ -94,7 +94,7 @@ router.post('/add/:track', findModels, checkToken, jwtAuth, (req, res, next) => 
   access_token = res.manager.accessToken;
   let track = req.params.track;
 
-  if(res.user === undefined && (res.manager.tracks.indexOf(track) !== -1) ) {
+  if (res.user === undefined && (res.manager.tracks.indexOf(track) !== -1) ) {
     return res.json({Message: 'Song already on playlist.'});
 
   } else if (res.user && res.user.tracks.indexOf(track) !== -1) {
@@ -108,11 +108,11 @@ router.post('/add/:track', findModels, checkToken, jwtAuth, (req, res, next) => 
       .set('Authorization', `Bearer ${access_token}`)
       .set('Accept', 'application/json')
       .end((err) => {
-        if(err) {
+        if (err) {
           return next(err);
         }
         console.log('res user', res.user);
-        if(res.user === undefined) {
+        if (res.user === undefined) {
           Manager.findOne({username: res.manager.username}, (err, manager) => {
             if (err) return next(err);
 
@@ -146,11 +146,11 @@ router.delete('/delete/:track', findModels, checkToken, jwtAuth, refreshVetoes, 
   playlist_id = res.session.playlist_id;
   access_token = manager.accessToken;
 
-  if(res.user === undefined) {
+  if (res.user === undefined) {
     Manager.findOne({username: res.manager.username}, (err, manager) => {
       if (err) return next(new Error('Cannot find manager.'));
 
-      if(manager.vetoes === res.session.users.length + 1) {
+      if (manager.vetoes === res.session.users.length + 1) {
         return res.json({Message: 'Out of vetoes'});
       }
       else {
@@ -176,7 +176,7 @@ router.delete('/delete/:track', findModels, checkToken, jwtAuth, refreshVetoes, 
             'Accept', 'application/json'
           )
           .end((err) => {
-            if(err) return next(err);
+            if (err) return next(err);
             return res.json({Message:'Track deleted!'});
           });
       }
@@ -185,7 +185,7 @@ router.delete('/delete/:track', findModels, checkToken, jwtAuth, refreshVetoes, 
 
     User.findOne({username: res.user.username}, (err, user) => {
 
-      if(user.vetoes === res.session.users.length + 1) {
+      if (user.vetoes === res.session.users.length + 1) {
 
         res.json({Message: 'Out of vetoes'});
 
@@ -212,7 +212,7 @@ router.delete('/delete/:track', findModels, checkToken, jwtAuth, refreshVetoes, 
             'Accept', 'application/json'
           )
           .end((err) => {
-            if(err) return next(err);
+            if (err) return next(err);
             res.json({Message:'Track deleted!'});
           });
       }
