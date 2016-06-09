@@ -81,6 +81,7 @@ router.post('/create/:name', findModels, checkToken, (req, res, next) => {
     else {
       Session.findOneAndUpdate({manager_id}, {$set: {playlist_id}}, (err) => {
         if (err) return next(err);
+        console.log('res', res.body);
         res.json({Message: 'Playlist Created!'});
       });
     }
