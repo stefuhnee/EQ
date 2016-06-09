@@ -8,6 +8,7 @@ const jwtAuth = require('../lib/jwt-auth');
 const request = require('superagent');
 const User = require('../model/user');
 const Manager = require('../model/manager');
+const refreshVetoes = require('../lib/refresh-vetoes');
 
 let access_token;
 let playlist_id;
@@ -129,7 +130,7 @@ router.post('/add/:track', findModels, checkToken, jwtAuth, (req, res, next) => 
     });
 });
 
-router.delete('/delete/:track', findModels, checkToken, jwtAuth, (req, res, next) => {
+router.delete('/delete/:track', findModels, checkToken, jwtAuth, refreshVetoes, (req, res, next) => {
 
   let manager = res.manager;
   let track = req.params.track;
