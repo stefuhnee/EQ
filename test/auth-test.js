@@ -29,7 +29,7 @@ describe('auth unit tests', () => {
   let token;
 
   before((done) => {
-    let testSession = new Session({manager_id: '1216797299'});
+    let testSession = new Session({managerId: '1216797299'});
     testSession.save(() => {
       request('localhost:8888')
       .post('/signup')
