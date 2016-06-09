@@ -43,8 +43,7 @@ describe('unit tests', () => {
       if (err) throw err;
       res.manager = data;
 
-      testSession.save((err, session) => {
-        console.log('session', session)
+      testSession.save((err) => {
         if (err) throw err;
         done();
       });
