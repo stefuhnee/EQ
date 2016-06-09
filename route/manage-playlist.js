@@ -4,7 +4,6 @@ const router = require('express').Router();
 const Session = require('../model/session');
 const findModels = require('../lib/find-models');
 const checkToken = require('../lib/check-token');
-const decodeUserToken = require('../lib/decode-user-token');
 const jwtAuth = require('../lib/jwt-auth');
 const request = require('superagent');
 const User = require('../model/user');
@@ -60,7 +59,7 @@ router.get('/playlist', findModels, checkToken, jwtAuth, (req, res) => {
   });
 });
 
-router.post('/create/:name', decodeUserToken, findModels, checkToken, jwtAuth, (req, res, next) => {
+router.post('/create/:name', findModels, checkToken, (req, res, next) => {
 
   access_token = res.manager.accessToken;
   manager_id = res.manager.username;
@@ -86,7 +85,7 @@ router.post('/create/:name', decodeUserToken, findModels, checkToken, jwtAuth, (
   res.json({Message:'Playlist Created!'});
 });
 
-router.post('/add/:track', decodeUserToken, findModels, checkToken, jwtAuth, (req, res, next) => {
+router.post('/add/:track', findModels, checkToken, jwtAuth, (req, res, next) => {
 
   access_token = res.manager.accessToken;
   let track = req.params.track;
@@ -124,7 +123,7 @@ router.post('/add/:track', decodeUserToken, findModels, checkToken, jwtAuth, (re
     });
 });
 
-router.delete('/delete/:track', decodeUserToken, findModels, checkToken, jwtAuth, (req, res, next) => {
+router.delete('/delete/:track', findModels, checkToken, jwtAuth, (req, res, next) => {
 
   let manager = res.manager;
   let track = req.params.track;
@@ -200,7 +199,7 @@ router.delete('/delete/:track', decodeUserToken, findModels, checkToken, jwtAuth
 });
 
 router.use((err, req, res, next) => {
-  res.json(err);
+  res.json(err.message);
   next(err);
 });
 
