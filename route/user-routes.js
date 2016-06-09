@@ -18,7 +18,7 @@ router.post('/signup', bodyParser, (req, res, next) => {
     newUser.user_token = newUser.generateToken();
     newUser.save((err) => {
       if (err) return next(new Error('Could not create user'));
-      res.send('user created');
+      res.json({token: newUser.user_token});
     });
   });
 });

@@ -39,7 +39,7 @@ router.get('/login', (req, res) => {
     }));
 });
 
-router.get('/callback', function(req, res) {
+router.get('/callback', (req, res, next) => {
 
   let code = req.query.code || null;
   let state = req.query.state || null;
@@ -66,7 +66,7 @@ router.get('/callback', function(req, res) {
       json: true
     };
 
-    request.post(authOptions, function(error, response, body) {
+    request.post(authOptions, (error, response, body) => {
 
       if (!error && response.statusCode === 200) {
         access_token = body.access_token;
@@ -89,7 +89,7 @@ router.get('/callback', function(req, res) {
 
             if (!manager) {
               newManager.save((err) => {
-                if (err) console.log('manager save error');
+                if (err) return next(err);
               });
             }
           });
@@ -98,8 +98,10 @@ router.get('/callback', function(req, res) {
 
             if (!session) {
               newSession.save((err) => {
-                if (err) console.log('session save error');
-                return res.send('Please have users include the field username in the headers of every request');
+                if (err) return next(err);
+                else {
+                  return res.send('Please have users include the field username in the headers of every request');
+                }
               });
             }
           });
@@ -108,6 +110,11 @@ router.get('/callback', function(req, res) {
       }
     });
   }
+});
+
+router.use((err, req, res, next) => {
+  res.json(err.message);
+  next(err);
 });
 
 module.exports = router;
