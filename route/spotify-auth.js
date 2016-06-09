@@ -93,23 +93,19 @@ router.get('/callback', (req, res, next) => {
             else if (!manager) {
               newManager.save((err) => {
                 if (err) return next(err);
+
+                Session.findOne({manager_id: manager_id}, (err, session) => {
+                  if (!session) {
+                    newSession.save((err) => {
+                      if (err) return next(err);
+                      return res.send('Please have users include the field username in the headers of every request');
+                    });
+                  } else return next(err);
+                });
               });
             }
+            res.send('Please have users include the field username in the headers of every request');
           });
-
-          Session.findOne({manager_id: manager_id}, (err, session) => {
-
-            if (!session) {
-
-              newSession.save((err) => {
-                if (err) return next(err);
-                else {
-                  return res.send('Please have users include the field username in the headers of every request');
-                }
-              });
-            }
-          });
-          res.send('Please have users include the field username in the headers of every request');
         });
       }
     });
