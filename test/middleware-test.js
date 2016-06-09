@@ -83,6 +83,7 @@ describe('middleware unit tests', () => {
       Manager.findOneAndUpdate({username: '1216797299'}, {$set: {tokenExpires: 0}}, {new: true}, (err, manager) => {
         if (err) throw err;
         res.manager = manager;
+        console.log('manager', manager);
         checkToken(req, res, () => {
           expect(res.manager.accessToken).to.not.eql(access_token);
           done();
