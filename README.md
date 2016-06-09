@@ -59,11 +59,11 @@ Users get a limited number of vetoes per hour, determined by the number of colla
 
 ##### Manager Example
 ```sh
-$ curl -X DELETE -H "username:yourUsername" eq-project.herokuapp.com/add/SpotifyURI
+$ curl -X DELETE -H "username:yourUsername" eq-project.herokuapp.com/delete/SpotifyURI
 ```
 ##### User Example
 ```sh
-$ curl -X DELETE -H "username:yourUsername" -H "token:yourToken" eq-project.herokuapp.com/add/SpotifyURI
+$ curl -X DELETE -H "username:yourUsername" -H "token:yourToken" eq-project.herokuapp.com/delete/SpotifyURI
 ```
 ---
 ## Todo
