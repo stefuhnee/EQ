@@ -32,7 +32,7 @@ describe('playlist routes', () => {
 
   before((done) => {
     let testManager = new Manager({username: '1216797299', accessToken: access_token, refreshToken: 'test', tokenExpires: Date.now() + 100000});
-    let testSession = new Session({manager_id: '1216797299'});
+    let testSession = new Session({managerId: '1216797299'});
     testManager.save((err, data) => {
       if (err) throw err;
       manager = data;
