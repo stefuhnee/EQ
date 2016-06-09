@@ -23,6 +23,9 @@ router.post('/signup', bodyParser, (req, res, next) => {
         if (err) return next(new Error('Could not create user'));
         else if (req.headers.manager) findAndUpdateSession(managerID, user, next);
         res.json({token: newUser.userToken});
+      } else {
+        if (err) return next(new Error('Could not create user'));
+        res.json({token: newUser.userToken});
       }
     });
   });
@@ -37,6 +40,7 @@ router.get('/signin', basicAuth, (req, res, next) => {
   User.findOne({username}, (err, user) => {
     if (err || !user) return next(new Error('Cannot find user'));
     else if (!user.comparePassword(req.auth.password)) return next(new Error('Invalid password'));
+    else if(!managerID) return res.json({Message: 'Add manager name to headers'});
     findAndUpdateSession(managerID, user, next);
     return res.json({token: user.generateToken()});
   });
