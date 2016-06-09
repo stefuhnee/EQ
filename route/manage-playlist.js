@@ -73,18 +73,16 @@ router.post('/create/:name', findModels, checkToken, (req, res, next) => {
   .send({name:playlistName, public:false})
   .set('Authorization', `Bearer ${access_token}`)
   .set('Accept', 'application/json')
-  .end((err,res) => {
+  .end((err) => {
 
     if (err) return next(err);
-
     else {
       Session.findOneAndUpdate({manager_id}, {$set: {playlist_id}}, (err) => {
         if (err) return next(err);
+        res.json({Message: 'Playlist Created!'});
       });
     }
-
   });
-  res.json({Message:'Playlist Created!'});
 });
 
 router.post('/add/:track', findModels, checkToken, jwtAuth, (req, res, next) => {
