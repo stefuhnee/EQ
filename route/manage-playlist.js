@@ -10,6 +10,7 @@ const User = require('../model/user');
 const Manager = require('../model/manager');
 const refreshVetoes = require('../lib/refresh-vetoes');
 
+
 let access_token;
 let playlist_id;
 let manager_id;
@@ -141,17 +142,13 @@ router.delete('/delete/:track', findModels, checkToken, jwtAuth, refreshVetoes, 
   if(res.user === undefined) {
     Manager.findOne({username: res.manager.username}, (err, manager) => {
       if (err) return next(new Error('Cannot find manager.'));
-      // if(res.manager.signInTime + 3600000 >= Date.now()) {
-      //   Manager.findOneAndUpdate({username: manager.username}, {$set: {vetoes: 0, signInTime: Date.now()}}, (err) => {
-      //     if (err) return next(new Error('Cannot update user vetoes'));
-      //     return;
-      //   });
-      // }
 
       if(manager.vetoes === res.session.users.length + 1) {
-        res.send('Out of vetoes');
-      } else {
+        return res.send('Out of vetoes');
+      }
+      else {
         let newManagerVetoCount = manager.vetoes + 1; //prevent manager from adding same track
+        console.log('newManagerVetoCount', newManagerVetoCount);
         Manager.findOneAndUpdate({username: manager.username}, {$set: {vetoes: newManagerVetoCount}}, (err) => {
           if (err) return next(new Error('Cannot update user vetoes'));
           return;
@@ -173,20 +170,13 @@ router.delete('/delete/:track', findModels, checkToken, jwtAuth, refreshVetoes, 
           )
           .end((err) => {
             if(err) return next(err);
-            res.json({Message:'Track deleted!'});
+            return res.json({Message:'Track deleted!'});
           });
       }
     });
   } else {
 
     User.findOne({username: res.user.username}, (err, user) => {
-
-      // if(res.user.signInTime + 3600000 >= Date.now()) {
-      //   User.findOneAndUpdate({username: user.username}, {$set: {vetoes: 0, signInTime: Date.now()}}, (err) => {
-      //     if (err) return next(new Error('Cannot update user vetoes'));
-      //     return;
-      //   });
-      // }
 
       if(user.vetoes === res.session.users.length + 1) {
         res.send('Out of vetoes');
