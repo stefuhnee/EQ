@@ -91,7 +91,6 @@ router.post('/add/:track', findModels, checkToken, jwtAuth, (req, res, next) => 
 
   access_token = res.manager.accessToken;
   let track = req.params.track;
-  console.log('res session', res.session);
 
   request
     .post(`https://api.spotify.com/v1/users/${res.session.manager_id}/playlists/${res.session.playlist_id}/tracks`)
@@ -103,7 +102,7 @@ router.post('/add/:track', findModels, checkToken, jwtAuth, (req, res, next) => 
         // console.log('error in request', err);
         return next(err);
       }
-      console.log('res user', res.user);
+
       if(res.user === undefined) {
         Manager.findOne({username: res.manager.username}, (err, manager) => {
           if (err) return res.send('Cannot find manager.');
