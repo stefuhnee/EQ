@@ -64,8 +64,9 @@ router.post('/create/:name', findModels, checkToken, (req, res, next) => {
   access_token = res.manager.accessToken;
   manager_id = res.manager.username;
   let playlistName = req.params.name;
+  let playlist_id = res.session.playlist_id;
 
-  if(res.user) return next(new Error('User not allowed to make new playlist'));
+  if (res.user) return next(new Error('User not allowed to make new playlist'));
 
   request
   .post(`https://api.spotify.com/v1/users/${manager_id}/playlists`)
@@ -74,12 +75,11 @@ router.post('/create/:name', findModels, checkToken, (req, res, next) => {
   .set('Accept', 'application/json')
   .end((err,res) => {
 
-    if(err) next(err);
-    let playlist_id = res.body.id;
+    if (err) return next(err);
 
-    if(!err) {
+    else {
       Session.findOneAndUpdate({manager_id}, {$set: {playlist_id}}, (err) => {
-        if (err) next(err);
+        if (err) return next(err);
       });
     }
 
