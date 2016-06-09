@@ -59,7 +59,7 @@ router.get('/playlist', findModels, checkToken, jwtAuth, (req, res) => {
   });
 });
 
-router.post('/create/:name', findModels, checkToken, jwtAuth, (req, res, next) => {
+router.post('/create/:name', findModels, checkToken, (req, res, next) => {
 
   access_token = res.manager.accessToken;
   manager_id = res.manager.username;
