@@ -96,10 +96,10 @@ router.post('/add/:track', findModels, checkToken, jwtAuth, (req, res, next) => 
   console.log('res session', res.session);
 
   if(res.user === undefined && (res.manager.tracks.indexOf(track) !== -1) ) {
-    return next(res.send('Song already on playlist.'));
+    return (res.json({Message: 'Song already on playlist.'}));
 
   } else if (res.user && res.user.tracks.indexOf(track) !== -1) {
-    return next(res.send('Song already on playlist.'));
+    return (res.json({Message: 'Song already on playlist.'}));
   }
    else {
 
