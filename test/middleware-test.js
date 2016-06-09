@@ -81,16 +81,16 @@ describe('unit tests', () => {
       });
     });
 
-  //   it('should request a new token and store it on the manager if the current token is invalid', (done) => {
-  //     Manager.findOneAndUpdate({username: '1216797299'}, {$set: {tokenExpires: 0}}, {new: true}, (err, manager) => {
-  //       if (err) throw err;
-  //       res.manager = manager;
-  //       checkToken(req, res, () => {
-  //         expect(res.manager.accessToken).to.not.eql(access_token);
-  //         done();
-  //       });
-  //     });
-  //   });
+    it('should request a new token and store it on the manager if the current token is invalid', (done) => {
+      Manager.findOneAndUpdate({username: '1216797299'}, {$set: {tokenExpires: 0}}, {new: true}, (err, manager) => {
+        if (err) throw err;
+        res.manager = manager;
+        checkToken(req, res, () => {
+          expect(res.manager.accessToken).to.not.eql(access_token);
+          done();
+        });
+      });
+    });
   });
 
 
