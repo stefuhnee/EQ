@@ -35,7 +35,7 @@ describe('unit tests', () => {
     .end((err, res) => {
       if (err) throw err;
       token = res.body.token;
-      let testSession = new Session({managerId: '1216797299'});
+      let testSession = new Session({manager_id: '1216797299'});
       testSession.save(() => {
         done();
       });
