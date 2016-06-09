@@ -93,13 +93,12 @@ router.post('/add/:track', findModels, checkToken, jwtAuth, (req, res, next) => 
 
   access_token = res.manager.accessToken;
   let track = req.params.track;
-  console.log('res session', res.session);
 
   if(res.user === undefined && (res.manager.tracks.indexOf(track) !== -1) ) {
-    return (res.json({Message: 'Song already on playlist.'}));
+    return res.json({Message: 'Song already on playlist.'});
 
   } else if (res.user && res.user.tracks.indexOf(track) !== -1) {
-    return (res.json({Message: 'Song already on playlist.'}));
+    return res.json({Message: 'Song already on playlist.'});
   }
    else {
 
@@ -115,7 +114,7 @@ router.post('/add/:track', findModels, checkToken, jwtAuth, (req, res, next) => 
         console.log('res user', res.user);
         if(res.user === undefined) {
           Manager.findOne({username: res.manager.username}, (err, manager) => {
-            if (err) return res.send('Cannot find manager.');
+            if (err) return next(err);
 
             let managerTrackArray = manager.tracks; //prevent manager from adding same track
             managerTrackArray.push(track);
@@ -152,7 +151,7 @@ router.delete('/delete/:track', findModels, checkToken, jwtAuth, refreshVetoes, 
       if (err) return next(new Error('Cannot find manager.'));
 
       if(manager.vetoes === res.session.users.length + 1) {
-        return res.send('Out of vetoes');
+        return res.json({Message: 'Out of vetoes'});
       }
       else {
         let newManagerVetoCount = manager.vetoes + 1;
@@ -187,7 +186,8 @@ router.delete('/delete/:track', findModels, checkToken, jwtAuth, refreshVetoes, 
     User.findOne({username: res.user.username}, (err, user) => {
 
       if(user.vetoes === res.session.users.length + 1) {
-        res.send('Out of vetoes');
+
+        res.json({Message: 'Out of vetoes'});
 
       } else {
         let newUserVetoCount = user.vetoes + 1;
