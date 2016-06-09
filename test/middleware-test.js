@@ -46,7 +46,7 @@ describe('unit tests', () => {
   before((done) => {
 
     let testManager = new Manager({username: '1216797299', accessToken: access_token, refreshToken: refresh_token, tokenExpires: Date.now() + 100000});
-    let testSession = new Session({managerId: '1216797299', users:['test']});
+    let testSession = new Session({manager_id: '1216797299', users:['test']});
     let testUser = new User({username:'test', password:'test', vetoes:1, signInTime:(Date.now() + 3600001)});
 
     testManager.save((err, data) => {
@@ -86,7 +86,7 @@ describe('unit tests', () => {
   //       if (err) throw err;
   //       res.manager = manager;
   //       checkToken(req, res, () => {
-  //         expect(res.manager.accessToken).to.not.eql(accessToken);
+  //         expect(res.manager.accessToken).to.not.eql(access_token);
   //         done();
   //       });
   //     });

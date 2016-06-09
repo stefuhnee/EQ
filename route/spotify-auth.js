@@ -16,8 +16,8 @@ const generateRandomString = require('../lib/generate-random-string');
 const Manager = require('../model/manager');
 const Session = require('../model/session');
 
-let accessToken;
-let managerId;
+let access_token;
+let manager_id;
 let redirect_uri;
 
 router.use(express.static(__dirname + '/../public'))
@@ -70,23 +70,23 @@ router.get('/callback', (req, res, next) => {
     request.post(authOptions, (error, response, body) => {
 
       if (!error && response.statusCode === 200) {
-        accessToken = body.access_token;
-        let expiresIn = body.expires_in * 1000;
-        let refreshToken = body.refresh_token;
+        access_token = body.access_token;
+        let expires_in = body.expires_in * 1000;
+        let refresh_token = body.refresh_token;
 
         let options = {
           url: 'https://api.spotify.com/v1/me',
-          headers: { 'Authorization': 'Bearer ' + accessToken },
+          headers: { 'Authorization': 'Bearer ' + access_token },
           json: true
         };
 
         request.get(options, function(error, response, body) {
 
-          managerId = body.id;
-          let newManager = new Manager({username: managerId, tokenExpires: expiresIn + Date.now(), accessToken: accessToken, refreshToken: refreshToken});
-          let newSession = new Session({managerId: managerId});
+          manager_id = body.id;
+          let newManager = new Manager({username: manager_id, tokenExpires: expires_in + Date.now(), accessToken: access_token, refreshToken: refresh_token});
+          let newSession = new Session({manager_id: manager_id});
 
-          Manager.findOneAndUpdate({username: managerId}, { $set: {accessToken: accessToken, refreshToken: refreshToken}}, (err, manager) => {
+          Manager.findOneAndUpdate({username: manager_id}, { $set: {accessToken: access_token, refreshToken: refresh_token}}, (err, manager) => {
 
             if (err) return next(err);
 

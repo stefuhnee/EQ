@@ -8,7 +8,7 @@ const secret = process.env.SECRET || 'testPass';
 const User = new mongoose.Schema({
   username: {type: String, required: true},
   password: {type: String, required: true},
-  userToken: {type: String, default: null},
+  user_token: {type: String, default: null},
   vetoes: {type: Number, required: true, default: 0},
   tracks: {type: Array},
   signInTime: {type: Number, default: Date.now()}
