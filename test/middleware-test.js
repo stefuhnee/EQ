@@ -14,6 +14,7 @@ const User = require('../model/user');
 const checkToken = require('../lib/check-token');
 const generateRandomString = require('../lib/generate-random-string');
 const findModels = require('../lib/find-models');
+const refresh = require('../lib/refresh-vetoes');
 
 process.env.MONGOLAB_URI = 'mongodb://localhost/test_db';
 const dbPort = process.env.MONGOLAB_URI;
@@ -28,6 +29,7 @@ req.token = access_token;
 req.headers = {};
 req.headers.username = 'test';
 let res = {};
+let vUser;
 
 describe('unit tests', () => {
 
@@ -45,7 +47,7 @@ describe('unit tests', () => {
 
     let testManager = new Manager({username: '1216797299', accessToken: access_token, refreshToken: refresh_token, tokenExpires: Date.now() + 100000});
     let testSession = new Session({manager_id: '1216797299', users:['test']});
-    let testUser = new User({username:'test', password:'test', vetoes:0});
+    let testUser = new User({username:'test', password:'test', vetoes:1, signInTime:(Date.now() + 3600001)});
 
     testManager.save((err, data) => {
       if (err) throw err;
@@ -109,10 +111,11 @@ describe('unit tests', () => {
         expect(res).to.have.property('manager');
         expect(res).to.have.property('session');
         expect(res.user.username).to.eql('test');
+        vUser = res.user;
         done();
       });
     });
-    
+
     it('should error if no username is given in request', (done) => {
       req.headers.username = null;
       res = {};
@@ -121,6 +124,18 @@ describe('unit tests', () => {
         expect(res).to.not.have.property('user');
         expect(res).to.not.have.property('manager');
         expect(res).to.not.have.property('session');
+        done();
+      });
+    });
+  });
+  describe('refresh vetoes test', () => {
+
+    it('should set vetoes back to zero', (done) => {
+      res = {};
+      res.user = vUser;
+
+      refresh(req,res, () => {
+        expect(res.user.vetoes).to.eql(0);
         done();
       });
     });
