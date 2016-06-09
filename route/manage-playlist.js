@@ -11,20 +11,20 @@ const Manager = require('../model/manager');
 const refreshVetoes = require('../lib/refresh-vetoes');
 
 
-let access_token;
-let playlist_id;
-let manager_id;
+let accessToken;
+let playlistId;
+let managerId;
 
 router.get('/playlist', findModels, checkToken, jwtAuth, (req, res) => {
 
-  playlist_id = res.session.playlist_id;
-  manager_id = res.manager.username;
-  access_token = res.manager.accessToken;
+  playlistId = res.session.playlistId;
+  managerId = res.manager.username;
+  accessToken = res.manager.accessToken;
 
   let plPromise = new Promise((resolve,reject) => {
     request
-      .get(`https://api.spotify.com/v1/users/${manager_id}/playlists/${playlist_id}`)
-      .set('Authorization', 'Bearer ' + access_token)
+      .get(`https://api.spotify.com/v1/users/${managerId}/playlists/${playlistId}`)
+      .set('Authorization', 'Bearer ' + accessToken)
       .end((err, res) => {
 
         if (err) return reject({message: err});
@@ -46,8 +46,7 @@ router.get('/playlist', findModels, checkToken, jwtAuth, (req, res) => {
               position: index,
               id: item.track.id,
               name: item.track.name,
-              artist: item.track.artists[0].name,
-              addedBy: item.added_by.id
+              artist: item.track.artists[0].name
             };
           }
         }));
@@ -63,23 +62,23 @@ router.get('/playlist', findModels, checkToken, jwtAuth, (req, res) => {
 
 router.post('/create/:name', findModels, checkToken, (req, res, next) => {
 
-  access_token = res.manager.accessToken;
-  manager_id = res.manager.username;
+  accessToken = res.manager.accessToken;
+  managerId = res.manager.username;
   let playlistName = req.params.name;
 
   if (res.user) return next(new Error('User not allowed to make new playlist'));
 
   request
-  .post(`https://api.spotify.com/v1/users/${manager_id}/playlists`)
+  .post(`https://api.spotify.com/v1/users/${managerId}/playlists`)
   .send({name:playlistName, public:false})
-  .set('Authorization', `Bearer ${access_token}`)
+  .set('Authorization', `Bearer ${accessToken}`)
   .set('Accept', 'application/json')
   .end((err, response) => {
-    playlist_id = response.body.id;
+    playlistId = response.body.id;
 
     if (err) return next(err);
     else {
-      Session.findOneAndUpdate({manager_id}, {$set: {playlist_id}}, (err) => {
+      Session.findOneAndUpdate({managerId}, {$set: {playlistId}}, (err) => {
         if (err) return next(err);
         res.json({Message: 'Playlist Created!'});
       });
@@ -89,7 +88,7 @@ router.post('/create/:name', findModels, checkToken, (req, res, next) => {
 
 router.post('/add/:track', findModels, checkToken, jwtAuth, (req, res, next) => {
 
-  access_token = res.manager.accessToken;
+  accessToken = res.manager.accessToken;
   let track = req.params.track;
 
   if (!res.user && (res.manager.tracks.indexOf(track) !== -1) ) {
@@ -101,9 +100,9 @@ router.post('/add/:track', findModels, checkToken, jwtAuth, (req, res, next) => 
    else {
 
     request
-      .post(`https://api.spotify.com/v1/users/${res.session.manager_id}/playlists/${res.session.playlist_id}/tracks`)
+      .post(`https://api.spotify.com/v1/users/${res.session.managerId}/playlists/${res.session.playlistId}/tracks`)
       .send({uris: [`${track}`]})
-      .set('Authorization', `Bearer ${access_token}`)
+      .set('Authorization', `Bearer ${accessToken}`)
       .set('Accept', 'application/json')
       .end((err) => {
         if (err) {
@@ -138,9 +137,9 @@ router.delete('/delete/:track', findModels, checkToken, jwtAuth, refreshVetoes, 
 
   let manager = res.manager;
   let track = req.params.track;
-  let manager_id = manager.username;
-  playlist_id = res.session.playlist_id;
-  access_token = manager.accessToken;
+  let managerId = manager.username;
+  playlistId = res.session.playlistId;
+  accessToken = manager.accessToken;
 
   if (!res.user) {
     Manager.findOne({username: res.manager.username}, (err, manager) => {
@@ -154,7 +153,7 @@ router.delete('/delete/:track', findModels, checkToken, jwtAuth, refreshVetoes, 
           return;
         });
         request
-          .del(`https://api.spotify.com/v1/users/${manager_id}/playlists/${playlist_id}/tracks`)
+          .del(`https://api.spotify.com/v1/users/${managerId}/playlists/${playlistId}/tracks`)
           .send({
             'tracks' : [
               {
@@ -163,7 +162,7 @@ router.delete('/delete/:track', findModels, checkToken, jwtAuth, refreshVetoes, 
             ]
           })
           .set(
-            'Authorization', `Bearer ${access_token}`
+            'Authorization', `Bearer ${accessToken}`
           )
           .set(
             'Accept', 'application/json'
@@ -190,7 +189,7 @@ router.delete('/delete/:track', findModels, checkToken, jwtAuth, refreshVetoes, 
         });
 
         request
-          .del(`https://api.spotify.com/v1/users/${manager_id}/playlists/${playlist_id}/tracks`)
+          .del(`https://api.spotify.com/v1/users/${managerId}/playlists/${playlistId}/tracks`)
           .send({
             'tracks' : [
               {
@@ -199,7 +198,7 @@ router.delete('/delete/:track', findModels, checkToken, jwtAuth, refreshVetoes, 
             ]
           })
           .set(
-            'Authorization', `Bearer ${access_token}`
+            'Authorization', `Bearer ${accessToken}`
           )
           .set(
             'Accept', 'application/json'
