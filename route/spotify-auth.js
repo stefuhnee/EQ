@@ -88,7 +88,9 @@ router.get('/callback', (req, res, next) => {
 
           Manager.findOneAndUpdate({username: manager_id}, { $set: {accessToken: access_token, refreshToken: refresh_token}}, (err, manager) => {
 
-            if (!manager) {
+            if (err) return next(err);
+
+            else if (!manager) {
               newManager.save((err) => {
                 if (err) return next(err);
               });
@@ -98,7 +100,7 @@ router.get('/callback', (req, res, next) => {
           Session.findOne({manager_id: manager_id}, (err, session) => {
 
             if (!session) {
-              
+
               newSession.save((err) => {
                 if (err) return next(err);
                 else {
