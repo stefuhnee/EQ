@@ -134,6 +134,12 @@ router.delete('/delete/:track', findModels, checkToken, jwtAuth, (req, res, next
   if(res.user === undefined) {
     Manager.findOne({username: res.manager.username}, (err, manager) => {
       if (err) return next(new Error('Cannot find manager.'));
+      // if(res.manager.signInTime + 3600000 >= Date.now()) {
+      //   Manager.findOneAndUpdate({username: manager.username}, {$set: {vetoes: 0, signInTime: Date.now()}}, (err) => {
+      //     if (err) return next(new Error('Cannot update user vetoes'));
+      //     return;
+      //   });
+      // }
 
       if(manager.vetoes === res.session.users.length + 1) {
         res.send('Out of vetoes');
@@ -167,6 +173,13 @@ router.delete('/delete/:track', findModels, checkToken, jwtAuth, (req, res, next
   } else {
 
     User.findOne({username: res.user.username}, (err, user) => {
+
+      // if(res.user.signInTime + 3600000 >= Date.now()) {
+      //   User.findOneAndUpdate({username: user.username}, {$set: {vetoes: 0, signInTime: Date.now()}}, (err) => {
+      //     if (err) return next(new Error('Cannot update user vetoes'));
+      //     return;
+      //   });
+      // }
 
       if(user.vetoes === res.session.users.length + 1) {
         res.send('Out of vetoes');
