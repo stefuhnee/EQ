@@ -1,10 +1,10 @@
 'use strict';
 
 const chai = require('chai');
-const expect = chai.expect;
-const request = chai.request;
 const chaiHTTP = require('chai-http');
 chai.use(chaiHTTP);
+const expect = chai.expect;
+const request = chai.request;
 const mongoose = require('mongoose');
 
 const Manager = require('../model/manager');

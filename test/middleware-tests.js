@@ -1,10 +1,10 @@
 'use strict';
 
 const chai = require('chai');
-const expect = chai.expect;
-const request = chai.request;
 const chaiHttp = require('chai-http');
 chai.use(chaiHttp);
+const expect = chai.expect;
+const request = chai.request;
 const mongoose = require('mongoose');
 
 const Session = require('../model/session');
