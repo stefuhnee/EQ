@@ -10,7 +10,6 @@ const User = require('../model/user');
 const Manager = require('../model/manager');
 const refreshVetoes = require('../lib/refresh-vetoes');
 
-
 let access_token;
 let playlist_id;
 let manager_id;
@@ -111,19 +110,19 @@ router.post('/add/:track', findModels, checkToken, jwtAuth, (req, res, next) => 
         } else if (!res.user) {
           Manager.findOne({username: res.manager.username}, (err, manager) => {
             if (err) return next(err);
-
             let managerTrackArray = manager.tracks;
             managerTrackArray.push(track);
+
             Manager.findOneAndUpdate({username: manager.username}, {$set: {tracks: managerTrackArray}}, (err) => {
               if (err) return next(new Error('Cannot update user tracks'));
               return res.json({Message:'Track added!'});
             });
           });
         } else {
-
           User.findOne({username: res.user.username}, (err, user) => {
             let userTrackArray = user.tracks;
             userTrackArray.push(track);
+
             User.findOneAndUpdate({username: user.username}, {$set: {tracks: userTrackArray}}, (err) => {
               if (err) return next(new Error('Cannot update user tracks'));
               res.json({Message:'Track added!'});

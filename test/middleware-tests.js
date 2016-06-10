@@ -1,10 +1,10 @@
 'use strict';
 
 const chai = require('chai');
+const expect = chai.expect;
+const request = chai.request;
 const chaiHttp = require('chai-http');
 chai.use(chaiHttp);
-const expect = chai.expect;
-const request = require('chai').request;
 const mongoose = require('mongoose');
 
 const Session = require('../model/session');
@@ -22,7 +22,6 @@ const access_token = process.env.ACCESS_TOKEN;
 const refresh_token = process.env.REFRESH_TOKEN;
 
 require('../server');
-
 
 let req = {};
 req.token = access_token;

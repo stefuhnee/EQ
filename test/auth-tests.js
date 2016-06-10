@@ -1,17 +1,20 @@
 'use strict';
 
 const chai = require('chai');
+const expect = chai.expect;
+const request = chai.request;
 const chaiHttp = require('chai-http');
 chai.use(chaiHttp);
-const expect = chai.expect;
-const request = require('chai').request;
 const mongoose = require('mongoose');
+
 const basicAuth = require('../lib/basic-auth');
 const jwtAuth = require('../lib/jwt-auth');
-const dbPort = process.env.MONGOLAB_URI;
+
 const Session = require('../model/session');
 
+const dbPort = process.env.MONGOLAB_URI;
 process.env.MONGOLAB_URI = 'mongodb://localhost/test_db';
+
 require('../server');
 
 describe('auth unit tests', () => {
