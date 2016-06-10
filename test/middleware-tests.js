@@ -34,7 +34,7 @@ describe('middleware unit tests', () => {
 
   before((done) => {
 
-    let testManager = new Manager({username: '1216797299', accessToken: accessToken, refreshToken: refreshToken, tokenExpires: Date.now() + 100000});
+    let testManager = new Manager({username: '1216797299', accessToken, refreshToken, tokenExpires: Date.now() + 100000});
     let testSession = new Session({managerId: '1216797299', users:['test']});
     let testUser = new User({username:'test2', password:'test2', vetoes:1, signInTime:(Date.now() + 3600001)});
 

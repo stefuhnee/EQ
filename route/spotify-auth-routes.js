@@ -6,15 +6,14 @@ const request = require('request');
 const querystring = require('querystring');
 const cookieParser = require('cookie-parser');
 
-const clientId = process.env.CLIENT_ID; // Your client id
-const clientSecret = process.env.CLIENT_SECRET; // Your secret
-
-const stateKey = 'spotify_auth_state';
+const Manager = require('../model/manager');
+const Session = require('../model/session');
 
 const generateRandomString = require('../lib/generate-random-string');
 
-const Manager = require('../model/manager');
-const Session = require('../model/session');
+const clientId = process.env.CLIENT_ID;
+const clientSecret = process.env.CLIENT_SECRET;
+const stateKey = 'spotify_auth_state';
 
 let accessToken;
 let managerId;
@@ -80,13 +79,13 @@ router.get('/callback', (req, res, next) => {
           json: true
         };
 
-        request.get(options, function(error, response, body) {
+        request.get(options, (error, response, body) => {
 
           managerId = body.id;
-          let newManager = new Manager({username: managerId, tokenExpires: expiresIn + Date.now(), accessToken: accessToken, refreshToken: refreshToken});
-          let newSession = new Session({manager_id: managerId});
+          let newManager = new Manager({username: managerId, tokenExpires: expiresIn + Date.now(), accessToken, refreshToken});
+          let newSession = new Session({managerId});
 
-          Manager.findOneAndUpdate({username: managerId}, { $set: {accessToken: accessToken, refreshToken: refreshToken}}, (err, manager) => {
+          Manager.findOneAndUpdate({username: managerId}, {$set: {accessToken, refreshToken}}, (err, manager) => {
 
             if (err) return next(err);
 

@@ -1,13 +1,15 @@
 'use strict';
 
 const router = require('express').Router();
+const request = require('superagent');
+
+const User = require('../model/user');
 const Session = require('../model/session');
+const Manager = require('../model/manager');
+
 const findModels = require('../lib/find-models');
 const checkToken = require('../lib/check-token');
 const jwtAuth = require('../lib/jwt-auth');
-const request = require('superagent');
-const User = require('../model/user');
-const Manager = require('../model/manager');
 const refreshVetoes = require('../lib/refresh-vetoes');
 
 let accessToken;
@@ -20,7 +22,7 @@ router.get('/playlist', findModels, checkToken, jwtAuth, (req, res) => {
   managerId = res.manager.username;
   accessToken = res.manager.accessToken;
 
-  let plPromise = new Promise((resolve,reject) => {
+  let plPromise = new Promise((resolve, reject) => {
     request
       .get(`https://api.spotify.com/v1/users/${managerId}/playlists/${playlistId}`)
       .set('Authorization', 'Bearer ' + accessToken)
@@ -28,25 +30,26 @@ router.get('/playlist', findModels, checkToken, jwtAuth, (req, res) => {
 
         if (err) return reject({message: err});
 
-        let playlistArr =res.body.tracks.items;
-        resolve (playlistArr.map(function(item, index) {
+        let playlistArr = res.body.tracks.items;
 
-          if (item.track.artists.length > 1) {
+        resolve (playlistArr.map(function(item, index) {
+          let track = item.track;
+
+          if (track.artists.length > 1) {
             return {
               postion: index,
-              id: item.track.id,
-              name: item.track.name,
-              artistOne:item.track.artists[0].name,
-              artistTwo:item.track.artists[1].name
+              id: track.id,
+              name: track.name,
+              artistOne: track.artists[0].name,
+              artistTwo: track.artists[1].name
             };
 
           } else {
             return {
               position: index,
-              id: item.track.id,
-              name: item.track.name,
-              artist: item.track.artists[0].name,
-              addedBy: item.added_by.id
+              id: track.id,
+              name: track.name,
+              artist: track.artists[0].name
             };
           }
         }));
@@ -54,7 +57,7 @@ router.get('/playlist', findModels, checkToken, jwtAuth, (req, res) => {
   });
 
   plPromise.then((plData) => {
-    res.json({playlist:plData});
+    res.json({playlist: plData});
   }, (err) => {
     res.json(err);
   });
@@ -66,11 +69,11 @@ router.post('/create/:name', findModels, checkToken, (req, res, next) => {
   managerId = res.manager.username;
   let playlistName = req.params.name;
 
-  if (res.user) return next(new Error('User not allowed to make new playlist'));
+  if (res.user) return next(new Error('Users are not permitted to create a playlist'));
 
   request
   .post(`https://api.spotify.com/v1/users/${managerId}/playlists`)
-  .send({name:playlistName, public:false})
+  .send({name: playlistName, public: false})
   .set('Authorization', `Bearer ${accessToken}`)
   .set('Accept', 'application/json')
   .end((err, response) => {
@@ -114,16 +117,16 @@ router.post('/add/:track', findModels, checkToken, jwtAuth, (req, res, next) => 
             managerTrackArray.push(track);
 
             Manager.findOneAndUpdate({username: manager.username}, {$set: {tracks: managerTrackArray}}, (err) => {
-              if (err) return next(new Error('Cannot update user tracks'));
+              if (err) return next(err);
               return res.json({Message:'Track added!'});
             });
           });
         } else {
           User.findOne({username: res.user.username}, (err, user) => {
-            let userTrackArray = user.tracks;
-            userTrackArray.push(track);
+            let tracks = user.tracks;
+            tracks.push(track);
 
-            User.findOneAndUpdate({username: user.username}, {$set: {tracks: userTrackArray}}, (err) => {
+            User.findOneAndUpdate({username: user.username}, {$set: {tracks}}, (err) => {
               if (err) return next(new Error('Cannot update user tracks'));
               res.json({Message:'Track added!'});
             });
@@ -143,74 +146,44 @@ router.delete('/delete/:track', findModels, checkToken, jwtAuth, refreshVetoes, 
 
   if (!res.user) {
     Manager.findOne({username: res.manager.username}, (err, manager) => {
-      if (err) return next(new Error('Cannot find manager.'));
-
+      if (err) return next(err);
       else if (manager.vetoes === res.session.users.length + 1) return res.json({Message: 'Out of vetoes'});
       else {
         let newManagerVetoCount = manager.vetoes + 1;
+
         Manager.findOneAndUpdate({username: manager.username}, {$set: {vetoes: newManagerVetoCount}}, (err) => {
-          if (err) return next(new Error('Cannot update user vetoes'));
-          return;
+          if (err) return next(err);
         });
-        request
-          .del(`https://api.spotify.com/v1/users/${managerId}/playlists/${playlistId}/tracks`)
-          .send({
-            'tracks' : [
-              {
-                'uri' : `${track}`
-              }
-            ]
-          })
-          .set(
-            'Authorization', `Bearer ${accessToken}`
-          )
-          .set(
-            'Accept', 'application/json'
-          )
-          .end((err) => {
-            if (err) return next(err);
-            return res.json({Message:'Track deleted!'});
-          });
+        requestDelete();
       }
     });
   } else {
-
     User.findOne({username: res.user.username}, (err, user) => {
-
-      if (user.vetoes === res.session.users.length + 1) {
-
-        res.json({Message: 'Out of vetoes'});
-
-      } else {
+      if (user.vetoes === res.session.users.length + 1) res.json({Message: 'Out of vetoes'});
+      else {
         let newUserVetoCount = user.vetoes + 1;
 
         User.findOneAndUpdate({username: user.username}, {$set: {vetoes: newUserVetoCount}}, (err) => {
           if (err) return next(new Error('Cannot update user tracks'));
         });
-
-        request
-          .del(`https://api.spotify.com/v1/users/${managerId}/playlists/${playlistId}/tracks`)
-          .send({
-            'tracks' : [
-              {
-                'uri' : `${track}`
-              }
-            ]
-          })
-          .set(
-            'Authorization', `Bearer ${accessToken}`
-          )
-          .set(
-            'Accept', 'application/json'
-          )
-          .end((err) => {
-            if (err) return next(err);
-            res.json({Message:'Track deleted!'});
-          });
+        requestDelete();
       }
     });
   }
+
+  function requestDelete() {
+    request
+      .del(`https://api.spotify.com/v1/users/${managerId}/playlists/${playlistId}/tracks`)
+      .send({'tracks': [{'uri': `${track}`}]})
+      .set('Authorization', `Bearer ${accessToken}`)
+      .set('Accept', 'application/json')
+      .end((err) => {
+        if (err) return next(err);
+        res.json({Message:'Track deleted!'});
+      });
+  }
 });
+
 
 router.use((err, req, res, next) => {
   res.json(err.message);

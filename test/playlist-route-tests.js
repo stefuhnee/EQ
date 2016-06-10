@@ -22,13 +22,16 @@ describe('playlist routes', () => {
   let manager;
 
   before((done) => {
-    let testManager = new Manager({username: '1216797299', accessToken: accessToken, refreshToken: 'test', tokenExpires: Date.now() + 100000});
+    let testManager = new Manager({username: '1216797299', accessToken, refreshToken: 'test', tokenExpires: Date.now() + 100000});
     let testSession = new Session({managerId: '1216797299'});
+
     testManager.save((err, data) => {
       if (err) throw err;
       manager = data;
+
       testSession.save((err) => {
         if (err) throw err;
+
         request('localhost:8888')
         .post('/signup')
         .set('manager', '1216797299')
@@ -46,9 +49,11 @@ describe('playlist routes', () => {
   before((done) => {
     let testManager = new Manager({username: '1216797299', accessToken: accessToken, refreshToken: 'test', tokenExpires: Date.now() + 100000});
     let testSession = new Session({managerId: '1216797299'});
+
     testManager.save((err, data) => {
       if (err) throw err;
       manager = data;
+      
       testSession.save((err) => {
         if (err) throw err;
         done();
