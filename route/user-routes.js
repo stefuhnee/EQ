@@ -42,8 +42,7 @@ router.get('/signin', basicAuth, (req, res, next) => {
 
   User.findOne({username}, (err, user) => {
     if (err || !user || !user.comparePassword(password)) return next(new Error('Validation failure'));
-    else if(!managerId) return res.json({Message: 'Add manager name to headers'});
-    findAndUpdateSession(managerId, user, next);
+    else if (managerId) findAndUpdateSession(managerId, user, next);
     return res.json({token: user.generateToken()});
   });
 });
