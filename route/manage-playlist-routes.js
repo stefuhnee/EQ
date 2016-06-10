@@ -164,7 +164,7 @@ router.delete('/delete/:track', findModels, checkToken, jwtAuth, refreshVetoes, 
         let newUserVetoCount = user.vetoes + 1;
 
         User.findOneAndUpdate({username: user.username}, {$set: {vetoes: newUserVetoCount}}, (err) => {
-          if (err) return next(new Error('Cannot update user tracks'));
+          if (err) return next(err);
         });
         requestDelete();
       }
