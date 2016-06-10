@@ -9,6 +9,8 @@ const router = module.exports = express.Router();
 
 router.post('/signup', bodyParser, (req, res, next) => {
 
+  if (!req.body.password || !req.body.username) return next(new Error('Please enter a username and password'));
+
   let newUser = new User(req.body);
   let managerId = req.headers.manager;
   newUser.password = newUser.hashPassword();
