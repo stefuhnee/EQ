@@ -99,8 +99,11 @@ router.post('/add/:track', findModels, checkToken, jwtAuth, (req, res, next) => 
 
   } else if (res.user && res.user.tracks.indexOf(track) !== -1) {
     return res.json({Message: 'Song already on playlist.'});
-  }
-   else {
+
+  } else if (!res.session.playlistId) {
+    return res.json({Message: 'The manager has not created a playlist.'});
+
+  } else {
 
     request
       .post(`https://api.spotify.com/v1/users/${res.session.managerId}/playlists/${res.session.playlistId}/tracks`)
@@ -141,10 +144,14 @@ router.delete('/delete/:track', findModels, checkToken, jwtAuth, refreshVetoes, 
   let manager = res.manager;
   let track = req.params.track;
   let managerId = manager.username;
-  playlistId = res.session.playlistId;
   accessToken = manager.accessToken;
+  playlistId = res.session.playlistId;
 
-  if (!res.user) {
+  if (!res.session.playlistId) {
+    return res.json({Message: 'The manager has not created a playlist.'});
+  }
+
+  else if (!res.user) {
     Manager.findOne({username: res.manager.username}, (err, manager) => {
       if (err) return next(err);
       else if (manager.vetoes === res.session.users.length + 1) return res.json({Message: 'Out of vetoes'});
