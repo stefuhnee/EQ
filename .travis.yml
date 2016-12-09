@@ -21,7 +21,7 @@ script:
 notifictions:
   email:
     recipients:
-      - stefuhnee@gmail.com
+      stefuhnee@gmail.com
       on_failure: change
   slack:
     rooms:
