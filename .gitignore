@@ -1,8 +1,9 @@
 
 # application specific
 db/
-.env
+*.env
 env.sh
+coverage
 
 # Created by https://www.gitignore.io/api/node,osx,vim
 
