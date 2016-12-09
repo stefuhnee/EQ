@@ -36,31 +36,17 @@ router.post('/signup', bodyParser, (req, res, next) => {
 
 router.get('/signin', basicAuth, (req, res, next) => {
 
-<<<<<<< HEAD
   let managerId = req.headers.manager;
-=======
-  let managerID = req.headers.manager;
->>>>>>> 908e5fb2dd643a023036971c3e3238183891843e
   let username = req.auth.username;
   let password = req.auth.password;
 
   User.findOne({username}, (err, user) => {
-<<<<<<< HEAD
     if (err || !user || !user.comparePassword(password)) return next(new Error('Validation failure'));
     else if (managerId) findAndUpdateSession(managerId, user, next);
-=======
-    if (err || !user) return next(new Error('Cannot find user'));
-    if (!user.comparePassword(req.auth.password)) {
-      return next(new Error('Invalid password'));
-    }
-
-    findAndUpdateSession(managerID, user, next);
->>>>>>> 908e5fb2dd643a023036971c3e3238183891843e
     return res.json({token: user.generateToken()});
   });
 });
 
-<<<<<<< HEAD
 function findAndUpdateSession(managerId, user, next) {
 
   Session.findOne({managerId}, (err, session) => {
@@ -71,16 +57,6 @@ function findAndUpdateSession(managerId, user, next) {
       users.push(user.username);
       Session.findOneAndUpdate({managerId}, {$set: {users}}, (err) => {
         if (err) return next(err);
-=======
-function findAndUpdateSession(managerID, user, next) {
-  Session.findOne({manager_id: managerID}, (err, session) => {
-    if (err || !session) return next(new Error('Cannot find session'));
-    else if (session.users.indexOf(user.username) === -1) {
-      let sessionArray = session.users;
-      sessionArray.push(user.username);
-      Session.findOneAndUpdate({manager_id: managerID}, {$set: {users: sessionArray}}, (err) => {
-        if (err) return next(new Error('Cannot update session'));
->>>>>>> 908e5fb2dd643a023036971c3e3238183891843e
       });
     }
   });
